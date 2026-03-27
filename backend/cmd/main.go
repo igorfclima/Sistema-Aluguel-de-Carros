@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/handler"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/middleware"
@@ -47,6 +49,15 @@ func main() {
 
 	router := gin.Default()
 
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// Pubs
 	public := router.Group("/api")
 	{
@@ -58,13 +69,15 @@ func main() {
 	protected := router.Group("/api")
 	protected.Use(middleware.RequireAuth())
 	{
-		protected.GET("/perfil", func(c *gin.Context) {
+		protected.GET("/me", func(c *gin.Context) {
 			userID, _ := c.Get("userID")
 			c.JSON(200, gin.H{
-				"message": "Acesso autorizado",
+				"success": true,
 				"userID":  userID,
+				"message": "Sessão ativa e válida",
 			})
 		})
+
 		protected.POST("/pedidos", pedidoHandler.Create)
 		protected.PATCH("/pedidos/:id/status", pedidoHandler.UpdateStatus)
 		protected.POST("/automoveis", automovelHandler.Create)

@@ -32,3 +32,11 @@ func (h *UsuarioHandler) Create(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "user and profile created successfully"})
 }
+
+func (h *UsuarioHandler) Me(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	c.JSON(http.StatusOK, gin.H{
+		"user_id": userID,
+		"message": "Sessão ativa",
+	})
+}

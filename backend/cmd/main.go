@@ -24,14 +24,17 @@ func main() {
 	clienteRepo := repository.NewClienteRepository(db)
 	agenteRepo := repository.NewAgenteRepository(db)
 	bancoRepo := repository.NewBancoRepository(db)
+	pedidoRepo := repository.NewPedidoRepository(db)
 
 	// Services
 	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
 	authService := service.NewAuthService(usuarioRepo)
+	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo)
 
 	// Handlers
 	usuarioHandler := handler.NewUsuarioHandler(usuarioService)
 	authHandler := handler.NewAuthHandler(authService)
+	pedidoHandler := handler.NewPedidoHandler(pedidoService)
 
 	router := gin.Default()
 
@@ -46,7 +49,6 @@ func main() {
 	protected := router.Group("/api")
 	protected.Use(middleware.RequireAuth())
 	{
-		// test middleware
 		protected.GET("/perfil", func(c *gin.Context) {
 			userID, _ := c.Get("userID")
 			c.JSON(200, gin.H{
@@ -54,6 +56,7 @@ func main() {
 				"userID":  userID,
 			})
 		})
+		protected.POST("/pedidos", pedidoHandler.Create)
 	}
 
 	log.Println("server running on port 8080")

@@ -1,28 +1,33 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/handler"
+	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/repository"
+	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/service"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/pkgs/database"
 )
 
 func main() {
-	fmt.Println("Starting..")
-
 	database.Connect()
+
+	db := database.DB
+	if db == nil {
+		log.Fatal("database connection is nil")
+	}
+
+	usuarioRepo := repository.NewUsuarioRepository(db)
+	usuarioService := service.NewUsuarioService(usuarioRepo)
+	usuarioHandler := handler.NewUsuarioHandler(usuarioService)
 
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "API running",
-		})
-	})
+	router.POST("/usuarios", usuarioHandler.Create)
 
-	fmt.Println("Servidor rodando em http://localhost:8080")
+	log.Println("server running on port 8080")
 	if err := router.Run(":8080"); err != nil {
-		log.Fatal("Error opening server: ", err)
+		log.Fatalf("failed to start server: %v", err)
 	}
 }

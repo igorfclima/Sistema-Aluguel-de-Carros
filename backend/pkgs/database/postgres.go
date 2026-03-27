@@ -14,7 +14,7 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	err := godotenv.Load(".env", "../.env", "../../.env", "../../../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		fmt.Println("Aviso: Arquivo .env não encontrado. Usando variáveis nativas.")
 	}

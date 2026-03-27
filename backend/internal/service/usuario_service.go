@@ -17,10 +17,22 @@ type UsuarioService interface {
 type usuarioService struct {
 	usuarioRepo repository.UsuarioRepository
 	clienteRepo repository.ClienteRepository
+	agenteRepo  repository.AgenteRepository
+	bancoRepo   repository.BancoRepository
 }
 
-func NewUsuarioService(uRepo repository.UsuarioRepository, cRepo repository.ClienteRepository) UsuarioService {
-	return &usuarioService{usuarioRepo: uRepo, clienteRepo: cRepo}
+func NewUsuarioService(
+	uRepo repository.UsuarioRepository,
+	cRepo repository.ClienteRepository,
+	aRepo repository.AgenteRepository,
+	bRepo repository.BancoRepository,
+) UsuarioService {
+	return &usuarioService{
+		usuarioRepo: uRepo,
+		clienteRepo: cRepo,
+		agenteRepo:  aRepo,
+		bancoRepo:   bRepo,
+	}
 }
 
 func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
@@ -52,11 +64,11 @@ func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
 		return errors.New("failed to create user")
 	}
 
-	if req.Tipo == "CLIENTE" {
+	switch req.Tipo {
+	case "CLIENTE":
 		if req.CPF == "" {
 			return errors.New("cpf is required for cliente profile")
 		}
-
 		cliente := &model.Cliente{
 			UsuarioID: usuario.ID,
 			CPF:       req.CPF,
@@ -64,11 +76,43 @@ func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
 			Endereco:  req.Endereco,
 			Profissao: req.Profissao,
 		}
+		if err := s.clienteRepo.Create(cliente); err != nil {
+			return errors.New("failed to create client profile")
+		}
 
-		err = s.clienteRepo.Create(cliente)
-		if err != nil {
-			log.Printf("error creating cliente profile: %v", err)
-			return errors.New("user created, but failed to create client profile")
+	case "AGENTE":
+		if req.NomeInstituicao == "" {
+			return errors.New("nome_instituicao is required for agente profile")
+		}
+		agente := &model.Agente{
+			UsuarioID:       usuario.ID,
+			Tipo:            req.TipoAgente,
+			NomeInstituicao: req.NomeInstituicao,
+		}
+		if err := s.agenteRepo.Create(agente); err != nil {
+			return errors.New("failed to create agente profile")
+		}
+
+	case "BANCO":
+		if req.NomeInstituicao == "" || req.CodigoBancario == "" {
+			return errors.New("nome_instituicao and codigo_bancario are required for banco profile")
+		}
+
+		agente := &model.Agente{
+			UsuarioID:       usuario.ID,
+			Tipo:            "INSTITUICAO_FINANCEIRA",
+			NomeInstituicao: req.NomeInstituicao,
+		}
+		if err := s.agenteRepo.Create(agente); err != nil {
+			return errors.New("failed to create base agente for banco")
+		}
+
+		banco := &model.Banco{
+			AgenteID:       agente.ID,
+			CodigoBancario: req.CodigoBancario,
+		}
+		if err := s.bancoRepo.Create(banco); err != nil {
+			return errors.New("failed to create banco profile")
 		}
 	}
 

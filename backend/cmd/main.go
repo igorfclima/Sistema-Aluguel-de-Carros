@@ -20,8 +20,10 @@ func main() {
 
 	usuarioRepo := repository.NewUsuarioRepository(db)
 	clienteRepo := repository.NewClienteRepository(db)
+	agenteRepo := repository.NewAgenteRepository(db)
+	bancoRepo := repository.NewBancoRepository(db)
 
-	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo)
+	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
 	usuarioHandler := handler.NewUsuarioHandler(usuarioService)
 
 	router := gin.Default()

@@ -4,26 +4,27 @@ import (
 	"errors"
 	"log"
 
+	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/dto"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/model"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UsuarioService interface {
-	CreateUsuario(usuario *model.Usuario) error
+	CreateUsuario(req *dto.CreateUsuarioRequest) error
 }
 
 type usuarioService struct {
-	repo repository.UsuarioRepository
+	usuarioRepo repository.UsuarioRepository
+	clienteRepo repository.ClienteRepository
 }
 
-func NewUsuarioService(repo repository.UsuarioRepository) UsuarioService {
-	return &usuarioService{repo}
+func NewUsuarioService(uRepo repository.UsuarioRepository, cRepo repository.ClienteRepository) UsuarioService {
+	return &usuarioService{usuarioRepo: uRepo, clienteRepo: cRepo}
 }
 
-func (s *usuarioService) CreateUsuario(usuario *model.Usuario) error {
-	// email check
-	existingUser, err := s.repo.FindByEmail(usuario.Email)
+func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
+	existingUser, err := s.usuarioRepo.FindByEmail(req.Email)
 	if err != nil {
 		log.Printf("error checking existing user: %v", err)
 		return errors.New("internal server error")
@@ -32,19 +33,43 @@ func (s *usuarioService) CreateUsuario(usuario *model.Usuario) error {
 		return errors.New("email already in use")
 	}
 
-	// hash
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Senha), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("error hashing password: %v", err)
 		return errors.New("failed to process password")
 	}
-	usuario.Senha = string(hashedPassword)
 
-	// save on table
-	err = s.repo.Create(usuario)
+	usuario := &model.Usuario{
+		Nome:  req.Nome,
+		Email: req.Email,
+		Senha: string(hashedPassword),
+		Tipo:  req.Tipo,
+	}
+
+	err = s.usuarioRepo.Create(usuario)
 	if err != nil {
-		log.Printf("error creating user in database: %v", err)
+		log.Printf("error creating user: %v", err)
 		return errors.New("failed to create user")
+	}
+
+	if req.Tipo == "CLIENTE" {
+		if req.CPF == "" {
+			return errors.New("cpf is required for cliente profile")
+		}
+
+		cliente := &model.Cliente{
+			UsuarioID: usuario.ID,
+			CPF:       req.CPF,
+			RG:        req.RG,
+			Endereco:  req.Endereco,
+			Profissao: req.Profissao,
+		}
+
+		err = s.clienteRepo.Create(cliente)
+		if err != nil {
+			log.Printf("error creating cliente profile: %v", err)
+			return errors.New("user created, but failed to create client profile")
+		}
 	}
 
 	return nil

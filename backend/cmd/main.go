@@ -26,18 +26,24 @@ func main() {
 	bancoRepo := repository.NewBancoRepository(db)
 	pedidoRepo := repository.NewPedidoRepository(db)
 	automovelRepo := repository.NewAutomovelRepository(db)
+	contratoRepo := repository.NewContratoRepository(db)
+	creditoRepo := repository.NewContratoCreditoRepository(db)
 
 	// Services
 	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
 	authService := service.NewAuthService(usuarioRepo)
 	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo, agenteRepo)
 	automovelService := service.NewAutomovelService(automovelRepo)
+	contratoService := service.NewContratoService(contratoRepo, pedidoRepo, agenteRepo)
+	creditoService := service.NewCreditoService(creditoRepo, contratoRepo, bancoRepo)
 
 	// Handlers
 	usuarioHandler := handler.NewUsuarioHandler(usuarioService)
 	authHandler := handler.NewAuthHandler(authService)
 	pedidoHandler := handler.NewPedidoHandler(pedidoService)
 	automovelHandler := handler.NewAutomovelHandler(automovelService)
+	contratoHandler := handler.NewContratoHandler(contratoService)
+	creditoHandler := handler.NewCreditoHandler(creditoService)
 
 	router := gin.Default()
 
@@ -62,6 +68,8 @@ func main() {
 		protected.POST("/pedidos", pedidoHandler.Create)
 		protected.PATCH("/pedidos/:id/status", pedidoHandler.UpdateStatus)
 		protected.POST("/automoveis", automovelHandler.Create)
+		protected.POST("/contratos", contratoHandler.Create)
+		protected.POST("/creditos", creditoHandler.Create)
 	}
 
 	log.Println("server running on port 8080")

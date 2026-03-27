@@ -7,6 +7,7 @@ import (
 
 type BancoRepository interface {
 	Create(banco *model.Banco) error
+	FindByUsuarioID(usuarioID uint) (*model.Banco, error)
 }
 
 type bancoRepository struct {
@@ -23,4 +24,13 @@ func (r *bancoRepository) Create(banco *model.Banco) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (r *bancoRepository) FindByUsuarioID(usuarioID uint) (*model.Banco, error) {
+	var banco model.Banco
+	result := r.db.Where("usuario_id = ?", usuarioID).First(&banco)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &banco, nil
 }

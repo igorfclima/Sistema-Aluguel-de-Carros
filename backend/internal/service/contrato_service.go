@@ -23,24 +23,21 @@ func NewContratoService(cr repository.ContratoRepository, pr repository.PedidoRe
 }
 
 func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuarioID uint) (*model.Contrato, error) {
-	// 1. Quem está criando o contrato? Tem que ser um Agente válido (pega do token)
 	agente, err := s.agenteRepo.FindByUsuarioID(usuarioID)
 	if err != nil || agente == nil {
 		return nil, errors.New("apenas agentes podem gerar contratos")
 	}
 
-	// 2. O Pedido existe e está aprovado?
 	pedido, err := s.pedidoRepo.FindByID(req.PedidoID)
 	if err != nil || pedido.Status != "APROVADO" {
 		return nil, errors.New("pedido inválido ou não aprovado")
 	}
 
-	// 3. Monta o SEU modelo exato
 	contrato := &model.Contrato{
 		PedidoID:        req.PedidoID,
 		AutomovelID:     req.AutomovelID,
-		ClienteID:       pedido.ClienteID, // Puxa automaticamente do pedido!
-		AgenteID:        agente.ID,        // Puxa automaticamente de quem está logado!
+		ClienteID:       pedido.ClienteID,
+		AgenteID:        agente.ID,
 		Tipo:            model.TipoContrato(req.Tipo),
 		TipoPropriedade: model.TipoPropriedade(req.TipoPropriedade),
 	}

@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/dto"
-	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/model"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/service"
 )
 
@@ -25,18 +24,11 @@ func (h *UsuarioHandler) Create(c *gin.Context) {
 		return
 	}
 
-	usuario := &model.Usuario{
-		Nome:  req.Nome,
-		Email: req.Email,
-		Senha: req.Senha,
-		Tipo:  req.Tipo,
-	}
-
-	err := h.usuarioService.CreateUsuario(usuario)
+	err := h.usuarioService.CreateUsuario(&req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "user created successfully"})
+	c.JSON(http.StatusCreated, gin.H{"message": "user and profile created successfully"})
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/handler"
+	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/middleware"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/repository"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/service"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/pkgs/database"
@@ -18,17 +19,42 @@ func main() {
 		log.Fatal("database connection is nil")
 	}
 
+	// Repositories
 	usuarioRepo := repository.NewUsuarioRepository(db)
 	clienteRepo := repository.NewClienteRepository(db)
 	agenteRepo := repository.NewAgenteRepository(db)
 	bancoRepo := repository.NewBancoRepository(db)
 
+	// Services
 	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
+	authService := service.NewAuthService(usuarioRepo)
+
+	// Handlers
 	usuarioHandler := handler.NewUsuarioHandler(usuarioService)
+	authHandler := handler.NewAuthHandler(authService)
 
 	router := gin.Default()
 
-	router.POST("/usuarios", usuarioHandler.Create)
+	// Pubs
+	public := router.Group("/api")
+	{
+		public.POST("/usuarios", usuarioHandler.Create)
+		public.POST("/login", authHandler.Login)
+	}
+
+	// Jwt
+	protected := router.Group("/api")
+	protected.Use(middleware.RequireAuth())
+	{
+		// test middleware
+		protected.GET("/perfil", func(c *gin.Context) {
+			userID, _ := c.Get("userID")
+			c.JSON(200, gin.H{
+				"message": "Acesso autorizado",
+				"userID":  userID,
+			})
+		})
+	}
 
 	log.Println("server running on port 8080")
 	if err := router.Run(":8080"); err != nil {

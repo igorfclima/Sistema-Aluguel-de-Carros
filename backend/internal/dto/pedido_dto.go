@@ -8,3 +8,7 @@ type PedidoResponse struct {
 	Status          string    `json:"status"`
 	DataSolicitacao time.Time `json:"data_solicitacao"`
 }
+
+type UpdatePedidoStatusRequest struct {
+	Status string `json:"status" binding:"required"`
+}

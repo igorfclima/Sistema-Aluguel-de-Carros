@@ -8,6 +8,8 @@ import (
 type PedidoRepository interface {
 	Create(pedido *model.PedidoAluguel) error
 	FindByClienteID(clienteID uint) ([]model.PedidoAluguel, error)
+	FindByID(id uint) (*model.PedidoAluguel, error)
+	Update(pedido *model.PedidoAluguel) error
 }
 
 type pedidoRepository struct {
@@ -33,4 +35,21 @@ func (r *pedidoRepository) FindByClienteID(clienteID uint) ([]model.PedidoAlugue
 		return nil, result.Error
 	}
 	return pedidos, nil
+}
+
+func (r *pedidoRepository) FindByID(id uint) (*model.PedidoAluguel, error) {
+	var pedido model.PedidoAluguel
+	result := r.db.First(&pedido, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &pedido, nil
+}
+
+func (r *pedidoRepository) Update(pedido *model.PedidoAluguel) error {
+	result := r.db.Save(pedido)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

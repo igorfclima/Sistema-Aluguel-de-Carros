@@ -29,7 +29,7 @@ func main() {
 	// Services
 	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
 	authService := service.NewAuthService(usuarioRepo)
-	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo)
+	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo, agenteRepo)
 
 	// Handlers
 	usuarioHandler := handler.NewUsuarioHandler(usuarioService)
@@ -57,6 +57,7 @@ func main() {
 			})
 		})
 		protected.POST("/pedidos", pedidoHandler.Create)
+		protected.PATCH("/pedidos/:id/status", pedidoHandler.UpdateStatus)
 	}
 
 	log.Println("server running on port 8080")

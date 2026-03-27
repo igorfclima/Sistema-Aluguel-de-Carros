@@ -10,15 +10,17 @@ import (
 
 type PedidoService interface {
 	CreatePedido(usuarioID uint) (*dto.PedidoResponse, error)
+	UpdateStatus(pedidoID uint, status string, usuarioID uint) error
 }
 
 type pedidoService struct {
 	pedidoRepo  repository.PedidoRepository
 	clienteRepo repository.ClienteRepository
+	agenteRepo  repository.AgenteRepository
 }
 
-func NewPedidoService(pRepo repository.PedidoRepository, cRepo repository.ClienteRepository) PedidoService {
-	return &pedidoService{pedidoRepo: pRepo, clienteRepo: cRepo}
+func NewPedidoService(pRepo repository.PedidoRepository, cRepo repository.ClienteRepository, aRepo repository.AgenteRepository) PedidoService {
+	return &pedidoService{pedidoRepo: pRepo, clienteRepo: cRepo, agenteRepo: aRepo}
 }
 
 func (s *pedidoService) CreatePedido(usuarioID uint) (*dto.PedidoResponse, error) {
@@ -43,4 +45,23 @@ func (s *pedidoService) CreatePedido(usuarioID uint) (*dto.PedidoResponse, error
 	}
 
 	return response, nil
+}
+
+func (s *pedidoService) UpdateStatus(pedidoID uint, status string, usuarioID uint) error {
+	agente, err := s.agenteRepo.FindByUsuarioID(usuarioID)
+	if err != nil || agente == nil {
+		return errors.New("access denied: only agents can update order status")
+	}
+
+	pedido, err := s.pedidoRepo.FindByID(pedidoID)
+	if err != nil {
+		return errors.New("rental order not found")
+	}
+
+	if status != "APROVADO" && status != "REJEITADO" {
+		return errors.New("invalid status: must be APROVADO or REJEITADO")
+	}
+
+	pedido.Status = model.StatusPedido(status)
+	return s.pedidoRepo.Update(pedido)
 }

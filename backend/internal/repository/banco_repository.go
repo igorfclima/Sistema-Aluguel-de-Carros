@@ -28,7 +28,10 @@ func (r *bancoRepository) Create(banco *model.Banco) error {
 
 func (r *bancoRepository) FindByUsuarioID(usuarioID uint) (*model.Banco, error) {
 	var banco model.Banco
-	result := r.db.Where("usuario_id = ?", usuarioID).First(&banco)
+	result := r.db.Joins("JOIN agentes ON agentes.id = bancos.agente_id").
+		Where("agentes.usuario_id = ?", usuarioID).
+		First(&banco)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}

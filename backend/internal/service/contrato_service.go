@@ -15,7 +15,7 @@ type ContratoService interface {
 type contratoService struct {
 	contratoRepo repository.ContratoRepository
 	pedidoRepo   repository.PedidoRepository
-	agenteRepo   repository.AgenteRepository // Precisamos do repositório de Agente aqui!
+	agenteRepo   repository.AgenteRepository
 }
 
 func NewContratoService(cr repository.ContratoRepository, pr repository.PedidoRepository, ar repository.AgenteRepository) ContratoService {

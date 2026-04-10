@@ -17,20 +17,24 @@ func NewCreditoHandler(s service.CreditoService) *CreditoHandler {
 }
 
 func (h *CreditoHandler) Create(c *gin.Context) {
-	userIDValue, _ := c.Get("userID")
-	userID := uint(userIDValue.(float64))
+    userIDValue, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+        return
+    }
+    userID := userIDValue.(uint)
 
-	var req dto.CreateCreditoRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    var req dto.CreateCreditoRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	resultado, err := h.service.ConcederCredito(&req, userID)
-	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
+    resultado, err := h.service.ConcederCredito(&req, userID)
+    if err != nil {
+        c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusCreated, resultado)
+    c.JSON(http.StatusCreated, resultado)
 }

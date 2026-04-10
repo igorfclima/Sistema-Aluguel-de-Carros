@@ -18,21 +18,27 @@ func NewPedidoHandler(s service.PedidoService) *PedidoHandler {
 }
 
 func (h *PedidoHandler) Create(c *gin.Context) {
-	userIDValue, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "user identification not found in token"})
-		return
-	}
+    userIDValue, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "user identification not found in token"})
+        return
+    }
+    userID := userIDValue.(uint)
 
-	userID := uint(userIDValue.(float64))
 
-	response, err := h.pedidoService.CreatePedido(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    var req dto.CreatePedidoRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+        return
+    }
 
-	c.JSON(http.StatusCreated, response)
+    response, err := h.pedidoService.CreatePedido(&req, userID)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusCreated, response)
 }
 
 func (h *PedidoHandler) UpdateStatus(c *gin.Context) {
@@ -50,7 +56,7 @@ func (h *PedidoHandler) UpdateStatus(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	userID := uint(userIDValue.(float64))
+	userID := userIDValue.(uint)
 
 	// Faz o bind do JSON recebido
 	var req dto.UpdatePedidoStatusRequest
@@ -71,4 +77,21 @@ func (h *PedidoHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "order status updated successfully"})
+}
+
+func (h *PedidoHandler) GetByCliente(c *gin.Context) {
+    userIDValue, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+        return
+    }
+    userID := userIDValue.(uint)
+
+    pedidos, err := h.pedidoService.GetPedidosByCliente(userID)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, pedidos)
 }

@@ -19,12 +19,12 @@ func NewAutomovelService(repo repository.AutomovelRepository) AutomovelService {
 }
 
 func (s *automovelService) CreateAutomovel(req *dto.CreateAutomovelRequest) error {
-	automovel := &model.Automovel{
-		Matricula: req.Matricula,
-		Marca:     req.Marca,
-		Modelo:    req.Modelo,
-		Ano:       req.Ano,
-	}
-
-	return s.automovelRepo.Create(automovel)
+    automovel := &model.Automovel{
+        Matricula: req.Matricula,
+        Marca:     req.Marca,
+        Modelo:    req.Modelo,
+        Ano:       req.Ano,
+        Placa:     req.Placa,
+    }
+    return s.automovelRepo.Create(automovel)
 }

@@ -79,6 +79,7 @@ func main() {
 		})
 
 		protected.POST("/pedidos", pedidoHandler.Create)
+		protected.GET("/pedidos", pedidoHandler.GetByCliente)
 		protected.PATCH("/pedidos/:id/status", pedidoHandler.UpdateStatus)
 		protected.POST("/automoveis", automovelHandler.Create)
 		protected.POST("/contratos", contratoHandler.Create)

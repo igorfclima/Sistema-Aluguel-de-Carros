@@ -29,7 +29,7 @@ func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuario
 	}
 
 	pedido, err := s.pedidoRepo.FindByID(req.PedidoID)
-	if err != nil || pedido.Status != "APROVADO" {
+	if err != nil || pedido.Status != model.StatusAprovado {
 		return nil, errors.New("pedido inválido ou não aprovado")
 	}
 

@@ -22,7 +22,7 @@ func (h *ContratoHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "identificação do agente não encontrada"})
 		return
 	}
-	userID := uint(userIDValue.(float64))
+	userID := userIDValue.(uint)
 
 	var req dto.CreateContratoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

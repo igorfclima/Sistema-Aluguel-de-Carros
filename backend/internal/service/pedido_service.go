@@ -9,8 +9,9 @@ import (
 )
 
 type PedidoService interface {
-	CreatePedido(usuarioID uint) (*dto.PedidoResponse, error)
-	UpdateStatus(pedidoID uint, status string, usuarioID uint) error
+    CreatePedido(req *dto.CreatePedidoRequest, usuarioID uint) (*dto.PedidoResponse, error)
+    UpdateStatus(pedidoID uint, status string, usuarioID uint) error
+	GetPedidosByCliente(usuarioID uint) ([]dto.PedidoResponse, error)
 }
 
 type pedidoService struct {
@@ -19,49 +20,77 @@ type pedidoService struct {
 	agenteRepo  repository.AgenteRepository
 }
 
+func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoResponse, error) {
+    cliente, err := s.clienteRepo.FindByUsuarioID(usuarioID)
+    if err != nil || cliente == nil {
+        return nil, errors.New("client profile not found")
+    }
+
+    pedidos, err := s.pedidoRepo.FindByClienteID(cliente.ID)
+    if err != nil {
+        return nil, errors.New("failed to fetch orders")
+    }
+
+    var response []dto.PedidoResponse
+    for _, p := range pedidos {
+        response = append(response, dto.PedidoResponse{
+            ID:              p.ID,
+            ClienteID:       p.ClienteID,
+            AutomovelID:     p.AutomovelID,
+            Status:          string(p.Status),
+            DataSolicitacao: p.DataSolicitacao,
+        })
+    }
+
+    return response, nil
+}
+
 func NewPedidoService(pRepo repository.PedidoRepository, cRepo repository.ClienteRepository, aRepo repository.AgenteRepository) PedidoService {
 	return &pedidoService{pedidoRepo: pRepo, clienteRepo: cRepo, agenteRepo: aRepo}
 }
 
-func (s *pedidoService) CreatePedido(usuarioID uint) (*dto.PedidoResponse, error) {
-	cliente, err := s.clienteRepo.FindByUsuarioID(usuarioID)
-	if err != nil || cliente == nil {
-		return nil, errors.New("user does not have a valid client profile")
-	}
-	pedido := &model.PedidoAluguel{
-		ClienteID: cliente.ID,
-		Status:    model.StatusAguardando,
-	}
+func (s *pedidoService) CreatePedido(req *dto.CreatePedidoRequest, usuarioID uint) (*dto.PedidoResponse, error) {
+    cliente, err := s.clienteRepo.FindByUsuarioID(usuarioID)
+    if err != nil || cliente == nil {
+        return nil, errors.New("user does not have a valid client profile")
+    }
 
-	if err := s.pedidoRepo.Create(pedido); err != nil {
-		return nil, errors.New("failed to create rental order")
-	}
+    pedido := &model.PedidoAluguel{
+        ClienteID:   cliente.ID,
+        AutomovelID: req.AutomovelID,
+        Status:      model.StatusAguardando,
+    }
 
-	response := &dto.PedidoResponse{
-		ID:              pedido.ID,
-		ClienteID:       pedido.ClienteID,
-		Status:          string(pedido.Status),
-		DataSolicitacao: pedido.DataSolicitacao,
-	}
+    if err := s.pedidoRepo.Create(pedido); err != nil {
+        return nil, errors.New("failed to create rental order")
+    }
 
-	return response, nil
+    response := &dto.PedidoResponse{
+        ID:              pedido.ID,
+        ClienteID:       pedido.ClienteID,
+        AutomovelID:     pedido.AutomovelID,
+        Status:          string(pedido.Status),
+        DataSolicitacao: pedido.DataSolicitacao,
+    }
+
+    return response, nil
 }
 
 func (s *pedidoService) UpdateStatus(pedidoID uint, status string, usuarioID uint) error {
-	agente, err := s.agenteRepo.FindByUsuarioID(usuarioID)
-	if err != nil || agente == nil {
-		return errors.New("access denied: only agents can update order status")
-	}
+    agente, err := s.agenteRepo.FindByUsuarioID(usuarioID)
+    if err != nil || agente == nil {
+        return errors.New("access denied: only agents can update order status")
+    }
 
-	pedido, err := s.pedidoRepo.FindByID(pedidoID)
-	if err != nil {
-		return errors.New("rental order not found")
-	}
+    pedido, err := s.pedidoRepo.FindByID(pedidoID)
+    if err != nil {
+        return errors.New("rental order not found")
+    }
 
-	if status != "APROVADO" && status != "REJEITADO" {
-		return errors.New("invalid status: must be APROVADO or REJEITADO")
-	}
+    if status != string(model.StatusAprovado) && status != string(model.StatusCancelado) {
+        return errors.New("invalid status: must be APROVADO or CANCELADO")
+    }
 
-	pedido.Status = model.StatusPedido(status)
-	return s.pedidoRepo.Update(pedido)
+    pedido.Status = model.StatusPedido(status)
+    return s.pedidoRepo.Update(pedido)
 }

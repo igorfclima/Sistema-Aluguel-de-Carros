@@ -7,4 +7,7 @@ type Automovel struct {
 	Marca     string `gorm:"size:50;not null"`
 	Modelo    string `gorm:"size:50;not null"`
 	Placa     string `gorm:"size:10;uniqueIndex;not null"`
+
+	ProprietarioTipo string
+	ProprietarioID   uint
 }

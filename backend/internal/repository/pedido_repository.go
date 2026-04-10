@@ -45,7 +45,14 @@ func (r *pedidoRepository) FindByClienteID(clienteID uint) ([]model.PedidoAlugue
 
 func (r *pedidoRepository) FindByID(id uint) (*model.PedidoAluguel, error) {
 	var pedido model.PedidoAluguel
-	result := r.db.First(&pedido, id)
+
+	result := r.db.
+		Preload("Automovel").
+		Preload("Cliente.Usuario").
+		Preload("Cliente.Empregadores").
+		Preload("Cliente.Rendimentos").
+		First(&pedido, id)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import { pedidoService } from "@/services/pedido.service";
-import { Pedido } from "@/types/pedido.types";
+import { Pedido, PedidoResponse } from "@/types/pedido.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import router from "next/router";
 
 const statusLabel: Record<string, string> = {
     AGUARDANDO_ANALISE: "Aguardando análise",
@@ -48,6 +49,10 @@ export default function PedidosPage() {
             .catch(() => toast.error("Erro ao carregar pedidos"))
             .finally(() => setLoading(false));
     }, []);
+
+    const handleEditar = (pedido: PedidoResponse) => {
+        router.push(`/pedidos/editar/${pedido.id}`);
+    };
 
     async function handleCancelar(id: number) {
         try {
@@ -120,21 +125,31 @@ export default function PedidosPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {(pedido.status ===
-                                                "AGUARDANDO_ANALISE" ||
-                                                pedido.status ===
-                                                    "APROVADO") && (
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleCancelar(
-                                                            pedido.id,
-                                                        )
-                                                    }
-                                                >
-                                                    Cancelar
-                                                </Button>
+                                            {pedido.status ===
+                                                "AGUARDANDO_ANALISE" && (
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleEditar(pedido)
+                                                        }
+                                                    >
+                                                        Editar
+                                                    </Button>
+
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleCancelar(
+                                                                pedido.id,
+                                                            )
+                                                        }
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                </div>
                                             )}
                                         </TableCell>
                                     </TableRow>

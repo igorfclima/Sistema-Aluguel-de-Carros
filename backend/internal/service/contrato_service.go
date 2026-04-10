@@ -2,25 +2,29 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/dto"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/model"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/repository"
+	"gorm.io/gorm"
 )
 
 type ContratoService interface {
 	CreateContrato(req *dto.CreateContratoRequest, usuarioID uint) (*model.Contrato, error)
 	ListAllContratos() ([]dto.ContratoResponse, error)
+	ExecutarContrato(contrato *model.Contrato) error
 }
 
 type contratoService struct {
 	contratoRepo repository.ContratoRepository
 	pedidoRepo   repository.PedidoRepository
 	agenteRepo   repository.AgenteRepository
+	db           *gorm.DB
 }
 
-func NewContratoService(cr repository.ContratoRepository, pr repository.PedidoRepository, ar repository.AgenteRepository) ContratoService {
-	return &contratoService{contratoRepo: cr, pedidoRepo: pr, agenteRepo: ar}
+func NewContratoService(cr repository.ContratoRepository, pr repository.PedidoRepository, ar repository.AgenteRepository, db *gorm.DB) ContratoService {
+	return &contratoService{contratoRepo: cr, pedidoRepo: pr, agenteRepo: ar, db: db}
 }
 
 func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuarioID uint) (*model.Contrato, error) {
@@ -41,11 +45,16 @@ func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuario
 		AgenteID:        agente.ID,
 		Tipo:            model.TipoContrato(req.Tipo),
 		TipoPropriedade: model.TipoPropriedade(req.TipoPropriedade),
+		DataAssinatura:  time.Now(),
 	}
 
 	if err := s.contratoRepo.Create(contrato); err != nil {
 		return nil, err
 	}
+
+	if err := s.ExecutarContrato(contrato); err != nil {
+        return nil, errors.New("contrato criado, mas falha ao atualizar propriedade do veículo")
+    }
 
 	return contrato, nil
 }
@@ -70,4 +79,13 @@ func (s *contratoService) ListAllContratos() ([]dto.ContratoResponse, error) {
         })
     }
     return response, nil
+}
+
+func (s *contratoService) ExecutarContrato(contrato *model.Contrato) error {
+    var auto model.Automovel
+    s.db.First(&auto, contrato.AutomovelID)
+
+    auto.ProprietarioTipo = string(contrato.TipoPropriedade)
+
+    return s.db.Save(&auto).Error
 }

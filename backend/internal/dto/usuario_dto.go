@@ -14,4 +14,13 @@ type CreateUsuarioRequest struct {
 	TipoAgente      string `json:"tipo_agente"`
 	NomeInstituicao string `json:"nome_instituicao"`
 	CodigoBancario  string `json:"codigo_bancario"`
+
+	Empregador1 string  `json:"empregador1"`
+	Rendimento1 float64 `json:"rendimento1"`
+
+	Empregador2 string  `json:"empregador2"`
+	Rendimento2 float64 `json:"rendimento2"`
+
+	Empregador3 string  `json:"empregador3"`
+	Rendimento3 float64 `json:"rendimento3"`
 }

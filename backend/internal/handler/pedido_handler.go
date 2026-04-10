@@ -101,3 +101,32 @@ func (h *PedidoHandler) GetByCliente(c *gin.Context) {
 
     c.JSON(http.StatusOK, pedidos)
 }
+
+func (h *PedidoHandler) Update(c *gin.Context) {
+    id, _ := strconv.Atoi(c.Param("id"))
+    var req dto.CreatePedidoRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(400, gin.H{"error": "dados inválidos"})
+        return
+    }
+
+    usuarioID := c.MustGet("usuarioID").(uint)
+    err := h.pedidoService.UpdatePedido(uint(id), usuarioID, &req)
+    if err != nil {
+        c.JSON(400, gin.H{"error": err.Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "pedido atualizado"})
+}
+
+func (h *PedidoHandler) Cancel(c *gin.Context) {
+    id, _ := strconv.Atoi(c.Param("id"))
+    usuarioID := c.MustGet("usuarioID").(uint)
+
+    err := h.pedidoService.CancelarPedido(uint(id), usuarioID)
+    if err != nil {
+        c.JSON(400, gin.H{"error": err.Error()})
+        return
+    }
+    c.JSON(200, gin.H{"message": "pedido cancelado com sucesso"})
+}

@@ -13,6 +13,8 @@ type PedidoService interface {
     UpdateStatus(pedidoID uint, status string, usuarioID uint) error
 	GetPedidosByCliente(usuarioID uint) ([]dto.PedidoResponse, error)
 	ListAllPedidos() ([]dto.PedidoResponse, error)
+	UpdatePedido(pedidoID uint, usuarioID uint, req *dto.CreatePedidoRequest) error
+    CancelarPedido(pedidoID uint, usuarioID uint) error
 }
 
 type pedidoService struct {
@@ -113,4 +115,32 @@ func (s *pedidoService) ListAllPedidos() ([]dto.PedidoResponse, error) {
         })
     }
     return response, nil
+}
+
+func (s *pedidoService) UpdatePedido(pedidoID uint, usuarioID uint, req *dto.CreatePedidoRequest) error {
+    pedido, err := s.pedidoRepo.FindByID(pedidoID)
+    if err != nil || pedido.Cliente.UsuarioID != usuarioID {
+        return errors.New("pedido não encontrado ou sem permissão")
+    }
+
+    if pedido.Status != "AGUARDANDO_ANALISE" {
+        return errors.New("não é possível modificar um pedido que já saiu da análise")
+    }
+
+    pedido.AutomovelID = req.AutomovelID
+    return s.pedidoRepo.Update(pedido)
+}
+
+func (s *pedidoService) CancelarPedido(pedidoID uint, usuarioID uint) error {
+    pedido, err := s.pedidoRepo.FindByID(pedidoID)
+    if err != nil || pedido.Cliente.UsuarioID != usuarioID {
+        return errors.New("pedido não encontrado")
+    }
+
+    if pedido.Status == "CONTRATADO" {
+        return errors.New("não é possível cancelar um pedido com contrato já assinado")
+    }
+
+    pedido.Status = "CANCELADO"
+    return s.pedidoRepo.Update(pedido)
 }

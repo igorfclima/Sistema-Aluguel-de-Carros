@@ -135,6 +135,8 @@ export default function AdminPage() {
                                     <TableHead>Data</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Ações</TableHead>
+                                    <TableHead>Registrar Propriedade</TableHead>
+                                    <TableHead>Renda Comprovada</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -204,6 +206,58 @@ export default function AdminPage() {
                                                     </Button>
                                                 )}
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-2">
+                                                <Select
+                                                    onValueChange={(value) =>
+                                                        setTipoPropriedade(
+                                                            value as TipoPropriedade,
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecione o proprietário" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="CLIENTE">
+                                                            Cliente (Registro
+                                                            Direto)
+                                                        </SelectItem>
+                                                        <SelectItem value="EMPRESA">
+                                                            Empresa de Aluguel
+                                                        </SelectItem>
+                                                        <SelectItem value="BANCO">
+                                                            Banco
+                                                            (Leasing/Crédito)
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {pedido.soma_renda ? (
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-green-700">
+                                                        {new Intl.NumberFormat(
+                                                            "pt-BR",
+                                                            {
+                                                                style: "currency",
+                                                                currency: "BRL",
+                                                            },
+                                                        ).format(
+                                                            pedido.soma_renda,
+                                                        )}
+                                                    </span>
+                                                    <span className="text-[10px] uppercase text-gray-500">
+                                                        Renda Comprovada
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">
+                                                    Não informado
+                                                </span>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}

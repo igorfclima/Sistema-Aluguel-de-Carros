@@ -106,12 +106,21 @@ func (s *pedidoService) ListAllPedidos() ([]dto.PedidoResponse, error) {
 
     var response []dto.PedidoResponse
     for _, p := range pedidos {
+
+        var somaTotal float64
+        for _, r := range p.Cliente.Rendimentos {
+            somaTotal += r.Valor
+        }
+
         response = append(response, dto.PedidoResponse{
             ID:              p.ID,
             ClienteID:       p.ClienteID,
-            AutomovelID:     p.AutomovelID,
+            AutomovelID:      p.AutomovelID,
             Status:          string(p.Status),
             DataSolicitacao: p.DataSolicitacao,
+
+            SomaRenda:       somaTotal,
+            NomeCliente:     p.Cliente.Usuario.Nome,
         })
     }
     return response, nil

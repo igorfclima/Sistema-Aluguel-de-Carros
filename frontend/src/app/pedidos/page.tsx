@@ -21,6 +21,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useRouter } from "next/navigation"; // Alterado para navigation
+import { ModalEditarPedido } from "@/components/ModalEditarPedido";
 
 const statusLabel: Record<string, string> = {
     AGUARDANDO_ANALISE: "Aguardando análise",
@@ -42,7 +43,11 @@ const statusVariant: Record<
 export default function PedidosPage() {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [loading, setLoading] = useState(true);
-    const router = useRouter(); // Inicializado corretamente
+    const router = useRouter();
+    const [pedidoParaEditar, setPedidoParaEditar] = useState<Pedido | null>(
+        null,
+    );
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         pedidoService
@@ -52,8 +57,9 @@ export default function PedidosPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    const handleEditar = (id: number) => {
-        router.push(`/pedidos/editar/${id}`);
+    const handleEditar = (pedido: Pedido) => {
+        setPedidoParaEditar(pedido);
+        setIsModalOpen(true);
     };
 
     async function handleCancelar(id: number) {
@@ -155,9 +161,7 @@ export default function PedidosPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
-                                                            handleEditar(
-                                                                pedido.id,
-                                                            )
+                                                            handleEditar(pedido)
                                                         }
                                                     >
                                                         Editar
@@ -184,6 +188,15 @@ export default function PedidosPage() {
                     )}
                 </main>
             </div>
+            <ModalEditarPedido
+                pedido={pedidoParaEditar}
+                open={isModalOpen}
+                onOpenChange={setIsModalOpen}
+                onSuccess={() => {
+                    // Função para recarregar os pedidos após editar
+                    pedidoService.listar().then(setPedidos);
+                }}
+            />
         </ProtectedRoute>
     );
 }

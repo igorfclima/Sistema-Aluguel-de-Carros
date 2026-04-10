@@ -62,7 +62,7 @@ export default function Navbar() {
                             Contratos
                         </Link>
                         <Link
-                            href="/admin/automoveis/novo"
+                            href="/automoveis/novo"
                             className="text-sm font-medium hover:text-primary"
                         >
                             Cadastrar Veículo

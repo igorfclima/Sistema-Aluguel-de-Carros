@@ -42,6 +42,8 @@ func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoRespons
             AutomovelID:     p.AutomovelID,
             Status:          string(p.Status),
             DataSolicitacao: p.DataSolicitacao,
+			SomaRenda:       somaTotal,
+            NomeCliente:     p.Cliente.Usuario.Nome,
         })
     }
 
@@ -56,6 +58,11 @@ func (s *pedidoService) CreatePedido(req *dto.CreatePedidoRequest, usuarioID uin
     cliente, err := s.clienteRepo.FindByUsuarioID(usuarioID)
     if err != nil || cliente == nil {
         return nil, errors.New("user does not have a valid client profile")
+    }
+
+	var somaTotal float64
+    for _, r := range cliente.Rendimentos {
+        somaTotal += r.Valor
     }
 
     pedido := &model.PedidoAluguel{
@@ -74,6 +81,7 @@ func (s *pedidoService) CreatePedido(req *dto.CreatePedidoRequest, usuarioID uin
         AutomovelID:     pedido.AutomovelID,
         Status:          string(pedido.Status),
         DataSolicitacao: pedido.DataSolicitacao,
+		SomaRenda:       somaTotal,
     }
 
     return response, nil

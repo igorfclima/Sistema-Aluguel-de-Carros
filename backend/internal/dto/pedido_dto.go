@@ -19,7 +19,7 @@ type PedidoResponse struct {
     RG              string          `json:"rg,omitempty"`
     Profissao       string          `json:"profissao,omitempty"`
     Rendimentos     []RendimentoDTO `json:"rendimentos,omitempty"`
-    SomaRenda       float64         `json:"soma_renda,omitempty"`
+    SomaRenda       float64   `json:"soma_renda"`
 }
 
 type RendimentoDTO struct {

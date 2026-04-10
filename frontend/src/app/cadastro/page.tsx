@@ -171,6 +171,27 @@ export default function CadastroPage() {
                                         }
                                     />
                                 </div>
+                                <div className="space-y-4">
+                                    <h3 className="font-bold">
+                                        Informações Financeiras (Máx 3)
+                                    </h3>
+                                    {[1, 2, 3].map((i) => (
+                                        <div
+                                            key={i}
+                                            className="grid grid-cols-2 gap-2 border-b pb-2"
+                                        >
+                                            <Input
+                                                placeholder={`Empregador ${i}`}
+                                                name={`empregador${i}`}
+                                            />
+                                            <Input
+                                                type="number"
+                                                placeholder="Valor Mensal"
+                                                name={`rendimento${i}`}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </>
                         )}
 

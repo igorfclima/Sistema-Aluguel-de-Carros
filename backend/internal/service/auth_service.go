@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/dto"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/model"
@@ -67,8 +68,12 @@ func (s *authService) Register(req *dto.CreateUsuarioRequest) error {
     }
 
     if err := s.clienteRepo.Create(cliente); err != nil {
-        return err
-    }
+    // Se o erro for de duplicidade, retornamos uma mensagem clara
+	    if strings.Contains(err.Error(), "duplicate key") {
+    	    return errors.New("este CPF já está cadastrado no sistema")
+	    }
+    return err
+}
 
     if req.Empregador1 != "" {
         s.db.Create(&model.Empregador{ClienteID: cliente.ID, Nome: req.Empregador1})

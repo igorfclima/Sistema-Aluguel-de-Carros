@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import { pedidoService } from "@/services/pedido.service";
-import { Pedido, PedidoResponse } from "@/types/pedido.types";
+// Garanta que o tipo Pedido inclua soma_renda, marca e modelo
+import { Pedido } from "@/types/pedido.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +20,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import router from "next/router";
+import { useRouter } from "next/navigation"; // Alterado para navigation
 
 const statusLabel: Record<string, string> = {
     AGUARDANDO_ANALISE: "Aguardando análise",
@@ -41,6 +42,7 @@ const statusVariant: Record<
 export default function PedidosPage() {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter(); // Inicializado corretamente
 
     useEffect(() => {
         pedidoService
@@ -50,12 +52,15 @@ export default function PedidosPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    const handleEditar = (pedido: PedidoResponse) => {
-        router.push(`/pedidos/editar/${pedido.id}`);
+    const handleEditar = (id: number) => {
+        router.push(`/pedidos/editar/${id}`);
     };
 
     async function handleCancelar(id: number) {
+        if (!confirm("Deseja realmente cancelar este pedido?")) return;
+
         try {
+            // Chamando a rota de atualização de status que criamos no Go
             await pedidoService.atualizarStatus(id, { status: "CANCELADO" });
             setPedidos((prev) =>
                 prev.map((p) =>
@@ -93,18 +98,24 @@ export default function PedidosPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>ID</TableHead>
-                                    <TableHead>Automóvel</TableHead>
+                                    <TableHead>Veículo</TableHead>
                                     <TableHead>Data</TableHead>
+                                    {/* Nova coluna opcional para o cliente ver a renda que cadastrou */}
+                                    <TableHead>Renda Inf.</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Ações</TableHead>
+                                    <TableHead className="text-right">
+                                        Ações
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {pedidos.map((pedido) => (
                                     <TableRow key={pedido.id}>
-                                        <TableCell>#{pedido.id}</TableCell>
+                                        <TableCell className="font-medium">
+                                            #{pedido.id}
+                                        </TableCell>
                                         <TableCell>
-                                            #{pedido.automovel_id}
+                                            {`Carro #${pedido.automovel_id}`}
                                         </TableCell>
                                         <TableCell>
                                             {format(
@@ -116,6 +127,18 @@ export default function PedidosPage() {
                                             )}
                                         </TableCell>
                                         <TableCell>
+                                            {/* Mostra a soma da renda formatada */}
+                                            {pedido.soma_renda
+                                                ? new Intl.NumberFormat(
+                                                      "pt-BR",
+                                                      {
+                                                          style: "currency",
+                                                          currency: "BRL",
+                                                      },
+                                                  ).format(pedido.soma_renda)
+                                                : "---"}
+                                        </TableCell>
+                                        <TableCell>
                                             <Badge
                                                 variant={
                                                     statusVariant[pedido.status]
@@ -124,15 +147,17 @@ export default function PedidosPage() {
                                                 {statusLabel[pedido.status]}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="text-right">
                                             {pedido.status ===
                                                 "AGUARDANDO_ANALISE" && (
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 justify-end">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
-                                                            handleEditar(pedido)
+                                                            handleEditar(
+                                                                pedido.id,
+                                                            )
                                                         }
                                                     >
                                                         Editar

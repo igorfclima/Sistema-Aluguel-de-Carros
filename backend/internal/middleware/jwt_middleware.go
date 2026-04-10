@@ -43,6 +43,13 @@ func RequireAuth() gin.HandlerFunc {
 
         userID := uint(claims["sub"].(float64))
         c.Set("userID", userID)
+
+		if tipo, ok := claims["tipo"].(string); ok {
+			c.Set("userTipo", tipo)
+		} else {
+		    c.Set("userTipo", "CLIENTE")
+		}
+
         c.Next()
     }
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -50,7 +51,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://*.railway.app", "https://*.vercel.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -86,8 +87,13 @@ func main() {
 		protected.POST("/creditos", creditoHandler.Create)
 	}
 
-	log.Println("server running on port 8080")
-	if err := router.Run(":8080"); err != nil {
-		log.Fatalf("failed to start server: %v", err)
-	}
+	port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080"
+    }
+
+    log.Printf("Server running on port %s", port)
+    if err := router.Run(":" + port); err != nil {
+        log.Fatalf("failed to start server: %v", err)
+    }
 }

@@ -42,7 +42,7 @@ func (h *PedidoHandler) Create(c *gin.Context) {
 }
 
 func (h *PedidoHandler) UpdateStatus(c *gin.Context) {
-	// Extrai o ID do pedido da URL (ex: /api/pedidos/1/status)
+
 	pedidoIDParam := c.Param("id")
 	pedidoID, err := strconv.ParseUint(pedidoIDParam, 10, 32)
 	if err != nil {
@@ -50,7 +50,6 @@ func (h *PedidoHandler) UpdateStatus(c *gin.Context) {
 		return
 	}
 
-	// Extrai o ID do usuário do token JWT
 	userIDValue, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
@@ -58,14 +57,12 @@ func (h *PedidoHandler) UpdateStatus(c *gin.Context) {
 	}
 	userID := userIDValue.(uint)
 
-	// Faz o bind do JSON recebido
 	var req dto.UpdatePedidoStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	// Chama o serviço
 	err = h.pedidoService.UpdateStatus(uint(pedidoID), req.Status, userID)
 	if err != nil {
 		if err.Error() == "access denied: only agents can update order status" {
@@ -87,7 +84,16 @@ func (h *PedidoHandler) GetByCliente(c *gin.Context) {
     }
     userID := userIDValue.(uint)
 
-    pedidos, err := h.pedidoService.GetPedidosByCliente(userID)
+    userTipo, _ := c.Get("userTipo")
+
+    var pedidos []dto.PedidoResponse
+    var err error
+    if userTipo == "AGENTE" || userTipo == "BANCO" {
+        pedidos, err = h.pedidoService.ListAllPedidos()
+    } else {
+        pedidos, err = h.pedidoService.GetPedidosByCliente(userID)
+    }
+
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return

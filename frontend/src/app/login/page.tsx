@@ -22,6 +22,8 @@ import { Usuario } from "@/types/usuario.types";
 interface JwtPayload {
     sub: number;
     exp: number;
+    tipo: string;
+    nome: string;
 }
 
 export default function LoginPage() {
@@ -41,16 +43,20 @@ export default function LoginPage() {
 
             const usuario: Usuario = {
                 id: decoded.sub,
-                nome: email.split("@")[0],
+                nome: decoded.nome || email.split("@")[0],
                 email,
-                tipo: "CLIENTE",
+                tipo: decoded.tipo as any,
             };
 
             login(response.token, usuario);
-            toast.success("Login realizado!", {
-                description: "Bem-vindo de volta!",
-            });
-            router.push("/dashboard");
+
+            toast.success("Login realizado!");
+
+            if (decoded.tipo === "AGENTE" || decoded.tipo === "BANCO") {
+                router.push("/dashboard");
+            } else {
+                router.push("/dashboard");
+            }
         } catch {
             toast.error("Erro ao entrar", {
                 description: "E-mail ou senha inválidos.",

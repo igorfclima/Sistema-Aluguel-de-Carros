@@ -68,13 +68,17 @@ export default function NovoPedidoPage() {
                                             <SelectValue placeholder="Selecione um automóvel..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {automoveis.map((a) => (
+                                            {automoveis.map((a, index) => (
                                                 <SelectItem
-                                                    key={a.id}
-                                                    value={String(a.id)}
+                                                    key={a.id || (a as any).ID}
+                                                    value={String(
+                                                        a.id || (a as any).ID,
+                                                    )}
                                                 >
-                                                    {a.marca} {a.modelo} (
-                                                    {a.ano}) — {a.placa}
+                                                    {(a as any).Marca}{" "}
+                                                    {(a as any).Modelo} (
+                                                    {(a as any).Ano}) —{" "}
+                                                    {(a as any).Placa}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

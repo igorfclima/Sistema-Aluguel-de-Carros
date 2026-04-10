@@ -10,8 +10,14 @@ type PedidoRepository interface {
 	FindByClienteID(clienteID uint) ([]model.PedidoAluguel, error)
 	FindByID(id uint) (*model.PedidoAluguel, error)
 	Update(pedido *model.PedidoAluguel) error
+	FindAll() ([]model.PedidoAluguel, error)
 }
 
+func (r *pedidoRepository) FindAll() ([]model.PedidoAluguel, error) {
+    var pedidos []model.PedidoAluguel
+    err := r.db.Find(&pedidos).Error
+    return pedidos, err
+}
 type pedidoRepository struct {
 	db *gorm.DB
 }

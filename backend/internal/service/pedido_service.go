@@ -12,6 +12,7 @@ type PedidoService interface {
     CreatePedido(req *dto.CreatePedidoRequest, usuarioID uint) (*dto.PedidoResponse, error)
     UpdateStatus(pedidoID uint, status string, usuarioID uint) error
 	GetPedidosByCliente(usuarioID uint) ([]dto.PedidoResponse, error)
+	ListAllPedidos() ([]dto.PedidoResponse, error)
 }
 
 type pedidoService struct {
@@ -93,4 +94,23 @@ func (s *pedidoService) UpdateStatus(pedidoID uint, status string, usuarioID uin
 
     pedido.Status = model.StatusPedido(status)
     return s.pedidoRepo.Update(pedido)
+}
+
+func (s *pedidoService) ListAllPedidos() ([]dto.PedidoResponse, error) {
+    pedidos, err := s.pedidoRepo.FindAll()
+    if err != nil {
+        return nil, errors.New("failed to fetch all orders")
+    }
+
+    var response []dto.PedidoResponse
+    for _, p := range pedidos {
+        response = append(response, dto.PedidoResponse{
+            ID:              p.ID,
+            ClienteID:       p.ClienteID,
+            AutomovelID:     p.AutomovelID,
+            Status:          string(p.Status),
+            DataSolicitacao: p.DataSolicitacao,
+        })
+    }
+    return response, nil
 }

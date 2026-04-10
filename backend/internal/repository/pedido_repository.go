@@ -15,7 +15,9 @@ type PedidoRepository interface {
 
 func (r *pedidoRepository) FindAll() ([]model.PedidoAluguel, error) {
     var pedidos []model.PedidoAluguel
-    err := r.db.Preload("Cliente.Usuario").Preload("Cliente.Rendimentos").Find(&pedidos).Error
+    err := r.db.Preload("Cliente.Usuario").
+                Preload("Cliente.Rendimentos").
+                Find(&pedidos).Error
     return pedidos, err
 }
 type pedidoRepository struct {

@@ -28,7 +28,7 @@ export default function NovoAutomovelPage() {
         try {
             await api.post("/automoveis", formData);
             toast.success("Automóvel cadastrado com sucesso!");
-            router.push("/admin/automoveis");
+            router.push("/automoveis/novo");
         } catch (error: any) {
             toast.error(
                 error.response?.data?.error || "Erro ao cadastrar automóvel",

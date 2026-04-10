@@ -12,6 +12,7 @@ import (
 
 type UsuarioService interface {
 	CreateUsuario(req *dto.CreateUsuarioRequest) error
+	FindByID(id uint) (*model.Usuario, error)
 }
 
 type usuarioService struct {
@@ -117,4 +118,13 @@ func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
 	}
 
 	return nil
+}
+
+func (s *usuarioService) FindByID(id uint) (*model.Usuario, error) {
+	usuario, err := s.usuarioRepo.FindByID(id)
+	if err != nil {
+		log.Printf("erro ao buscar usuario por ID: %v", err)
+		return nil, errors.New("usuário não encontrado")
+	}
+	return usuario, nil
 }

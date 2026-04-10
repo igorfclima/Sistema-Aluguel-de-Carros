@@ -16,13 +16,16 @@ var getSecretKey = func() []byte {
 	return []byte(secret)
 }
 
-func GenerateToken(userID uint) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-	})
+func GenerateToken(userID uint, nome string, tipo string) (string, error) {
+	claims := jwt.MapClaims{
+		"sub":  userID,
+		"nome": nome,
+		"tipo": tipo,
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+	}
 
-	return token.SignedString(getSecretKey())
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
 
 func ValidateToken(tokenString string) (*jwt.Token, error) {

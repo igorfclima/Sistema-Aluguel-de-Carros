@@ -70,14 +70,7 @@ func main() {
 	protected := router.Group("/api")
 	protected.Use(middleware.RequireAuth())
 	{
-		protected.GET("/me", func(c *gin.Context) {
-			userID, _ := c.Get("userID")
-			c.JSON(200, gin.H{
-				"success": true,
-				"userID":  userID,
-				"message": "Sessão ativa e válida",
-			})
-		})
+		protected.GET("/me", usuarioHandler.Me)
 
 		protected.POST("/pedidos", pedidoHandler.Create)
 		protected.GET("/pedidos", pedidoHandler.GetByCliente)

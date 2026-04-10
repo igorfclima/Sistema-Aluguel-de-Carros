@@ -33,7 +33,7 @@ func (s *authService) Login(req *dto.LoginRequest) (string, error) {
 		return "", errors.New("invalid credentials")
 	}
 
-	token, err := jwt.GenerateToken(usuario.ID)
+	token, err := jwt.GenerateToken(usuario.ID, usuario.Nome, usuario.Tipo)
 	if err != nil {
 		return "", errors.New("failed to generate token")
 	}

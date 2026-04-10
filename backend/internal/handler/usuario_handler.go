@@ -34,9 +34,33 @@ func (h *UsuarioHandler) Create(c *gin.Context) {
 }
 
 func (h *UsuarioHandler) Me(c *gin.Context) {
-	userID, _ := c.Get("userID")
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário não autenticado"})
+		return
+	}
+
+	var id uint
+	switch v := userID.(type) {
+	case uint:
+		id = v
+	case float64:
+		id = uint(v)
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ID de usuário em formato inválido no token"})
+		return
+	}
+
+	usuario, err := h.usuarioService.FindByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Usuário não encontrado"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"user_id": userID,
-		"message": "Sessão ativa",
+		"id":    usuario.ID,
+		"nome":  usuario.Nome,
+		"email": usuario.Email,
+		"tipo":  usuario.Tipo,
 	})
 }

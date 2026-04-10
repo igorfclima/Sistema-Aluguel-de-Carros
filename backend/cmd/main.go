@@ -34,10 +34,10 @@ func main() {
 
 	// Services
 	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
-	authService := service.NewAuthService(usuarioRepo)
+	authService := service.NewAuthService(usuarioRepo, clienteRepo, db)
 	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo, agenteRepo)
 	automovelService := service.NewAutomovelService(automovelRepo)
-	contratoService := service.NewContratoService(contratoRepo, pedidoRepo, agenteRepo)
+	contratoService := service.NewContratoService(contratoRepo, pedidoRepo, agenteRepo, db)
 	creditoService := service.NewCreditoService(creditoRepo, contratoRepo, bancoRepo)
 
 	// Handlers

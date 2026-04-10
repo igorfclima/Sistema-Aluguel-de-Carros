@@ -14,24 +14,34 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		fmt.Println("Aviso: Arquivo .env não encontrado. Usando variáveis nativas.")
-	}
+	_ = godotenv.Load(".env")
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_PORT"))
+	var dsn string
+
+	railwayDSN := os.Getenv("DATABASE_URL")
+
+	if railwayDSN != "" {
+		dsn = railwayDSN
+	} else {
+		fmt.Println("Usando variáveis individuais para conexão local...")
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+			os.Getenv("DB_HOST"),
+			os.Getenv("DB_USER"),
+			os.Getenv("DB_PASSWORD"),
+			os.Getenv("DB_NAME"),
+			os.Getenv("DB_PORT"),
+		)
+	}
 
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Falha ao conectar no banco de dados:", err)
+		log.Fatalf("Falha ao conectar no banco de dados: %v", err)
 	}
 
 	DB = database
-	fmt.Println("Connected")
+	fmt.Println("Banco de dados conectado com sucesso!")
 
-	fmt.Println("Executando AutoMigrate")
-
+	fmt.Println("Executando AutoMigrate...")
 	err = DB.AutoMigrate(
 		&model.Usuario{},
 		&model.Automovel{},
@@ -48,5 +58,5 @@ func Connect() {
 	if err != nil {
 		log.Fatal("Erro nas migrations: ", err)
 	}
-	fmt.Println("Tabelas criadas")
+	fmt.Println("Tabelas sincronizadas!")
 }

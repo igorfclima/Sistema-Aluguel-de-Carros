@@ -41,3 +41,12 @@ func (h *ContratoHandler) Create(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, contrato)
 }
+
+func (h *ContratoHandler) ListAll(c *gin.Context) {
+    contratos, err := h.contratoService.ListAllContratos()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    c.JSON(http.StatusOK, contratos)
+}

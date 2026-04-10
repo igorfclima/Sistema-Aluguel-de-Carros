@@ -10,6 +10,7 @@ import (
 
 type ContratoService interface {
 	CreateContrato(req *dto.CreateContratoRequest, usuarioID uint) (*model.Contrato, error)
+	ListAllContratos() ([]dto.ContratoResponse, error)
 }
 
 type contratoService struct {
@@ -47,4 +48,26 @@ func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuario
 	}
 
 	return contrato, nil
+}
+
+func (s *contratoService) ListAllContratos() ([]dto.ContratoResponse, error) {
+    contratos, err := s.contratoRepo.FindAll()
+    if err != nil {
+        return nil, errors.New("falha ao buscar contratos")
+    }
+
+    var response []dto.ContratoResponse
+    for _, c := range contratos {
+        response = append(response, dto.ContratoResponse{
+            ID:              c.ID,
+            PedidoID:        c.PedidoID,
+            AutomovelID:     c.AutomovelID,
+            ClienteID:       c.ClienteID,
+            AgenteID:        c.AgenteID,
+            Tipo:            string(c.Tipo),
+            TipoPropriedade: string(c.TipoPropriedade),
+            DataAssinatura:  c.DataAssinatura,
+        })
+    }
+    return response, nil
 }

@@ -8,6 +8,7 @@ import (
 type ContratoRepository interface {
 	Create(contrato *model.Contrato) error
 	FindByID(id uint) (*model.Contrato, error)
+	FindAll() ([]model.Contrato, error)
 }
 
 type contratoRepository struct {
@@ -29,4 +30,10 @@ func (r *contratoRepository) FindByID(id uint) (*model.Contrato, error) {
         return nil, result.Error
     }
     return &contrato, nil
+}
+
+func (r *contratoRepository) FindAll() ([]model.Contrato, error) {
+    var contratos []model.Contrato
+    err := r.db.Find(&contratos).Error
+    return contratos, err
 }

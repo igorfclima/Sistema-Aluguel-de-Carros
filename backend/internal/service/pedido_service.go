@@ -36,13 +36,18 @@ func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoRespons
 
     var response []dto.PedidoResponse
     for _, p := range pedidos {
+        var somaTotal float64
+        for _, r := range p.Cliente.Rendimentos {
+            somaTotal += r.Valor
+        }
+
         response = append(response, dto.PedidoResponse{
             ID:              p.ID,
             ClienteID:       p.ClienteID,
             AutomovelID:     p.AutomovelID,
             Status:          string(p.Status),
             DataSolicitacao: p.DataSolicitacao,
-			SomaRenda:       somaTotal,
+            SomaRenda:       somaTotal,
             NomeCliente:     p.Cliente.Usuario.Nome,
         })
     }

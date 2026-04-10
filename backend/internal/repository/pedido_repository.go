@@ -37,12 +37,16 @@ func (r *pedidoRepository) Create(pedido *model.PedidoAluguel) error {
 }
 
 func (r *pedidoRepository) FindByClienteID(clienteID uint) ([]model.PedidoAluguel, error) {
-	var pedidos []model.PedidoAluguel
-	result := r.db.Where("cliente_id = ?", clienteID).Find(&pedidos)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return pedidos, nil
+    var pedidos []model.PedidoAluguel
+    result := r.db.Preload("Cliente.Usuario").
+                   Preload("Cliente.Rendimentos").
+                   Where("cliente_id = ?", clienteID).
+                   Find(&pedidos)
+
+    if result.Error != nil {
+        return nil, result.Error
+    }
+    return pedidos, nil
 }
 
 func (r *pedidoRepository) FindByID(id uint) (*model.PedidoAluguel, error) {

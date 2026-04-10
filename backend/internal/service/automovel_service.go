@@ -8,6 +8,7 @@ import (
 
 type AutomovelService interface {
 	CreateAutomovel(req *dto.CreateAutomovelRequest) error
+	ListAll() ([]model.Automovel, error)
 }
 
 type automovelService struct {
@@ -27,4 +28,8 @@ func (s *automovelService) CreateAutomovel(req *dto.CreateAutomovelRequest) erro
         Placa:     req.Placa,
     }
     return s.automovelRepo.Create(automovel)
+}
+
+func (s *automovelService) ListAll() ([]model.Automovel, error) {
+	return s.automovelRepo.FindAll()
 }

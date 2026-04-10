@@ -7,6 +7,7 @@ import (
 
 type AutomovelRepository interface {
 	Create(automovel *model.Automovel) error
+	FindAll() ([]model.Automovel, error)
 }
 
 type automovelRepository struct {
@@ -23,4 +24,10 @@ func (r *automovelRepository) Create(automovel *model.Automovel) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (r *automovelRepository) FindAll() ([]model.Automovel, error) {
+	var automoveis []model.Automovel
+	err := r.db.Find(&automoveis).Error
+	return automoveis, err
 }

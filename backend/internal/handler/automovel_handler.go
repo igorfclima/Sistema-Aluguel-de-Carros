@@ -12,6 +12,15 @@ type AutomovelHandler struct {
 	automovelService service.AutomovelService
 }
 
+func (h *AutomovelHandler) ListAll(c *gin.Context) {
+	automoveis, err := h.automovelService.ListAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar frota"})
+		return
+	}
+	c.JSON(http.StatusOK, automoveis)
+}
+
 func NewAutomovelHandler(s service.AutomovelService) *AutomovelHandler {
 	return &AutomovelHandler{automovelService: s}
 }

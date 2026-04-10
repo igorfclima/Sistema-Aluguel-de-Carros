@@ -79,7 +79,7 @@ export default function PedidosPage() {
                         <p className="text-sm text-muted-foreground">
                             Carregando...
                         </p>
-                    ) : pedidos.length === 0 ? (
+                    ) : (pedidos?.length || 0) === 0 ? (
                         <p className="text-sm text-muted-foreground">
                             Nenhum pedido encontrado.
                         </p>

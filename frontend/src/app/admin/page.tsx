@@ -185,10 +185,14 @@ export default function AdminPage() {
                                         <TableRow key={pedido.id}>
                                             <TableCell>#{pedido.id}</TableCell>
                                             <TableCell>
-                                                #{pedido.cliente_id}
+                                                {pedido.nome_cliente ||
+                                                    `Cliente #${pedido.cliente_id}`}
                                             </TableCell>
                                             <TableCell>
-                                                #{pedido.automovel_id}
+                                                {pedido.marca && pedido.modelo
+                                                    ? `${pedido.marca} ${pedido.modelo}`
+                                                    : pedido.placa ||
+                                                      `Veiculo #${pedido.automovel_id}`}
                                             </TableCell>
                                             <TableCell>
                                                 {format(

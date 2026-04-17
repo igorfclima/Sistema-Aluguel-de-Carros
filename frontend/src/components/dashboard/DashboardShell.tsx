@@ -28,7 +28,7 @@ export function DashboardShell({
     return (
         <div className="min-h-screen bg-[#f8f9f7] text-[#222629]">
             <div className="flex w-full gap-0">
-                <aside className="w-full border-b border-[#dfe4de] bg-[#f3f5f2] px-5 py-5 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[292px] lg:flex-col lg:rounded-none lg:border-b-0 lg:border-r lg:px-6 lg:py-8 lg:shadow-[0_10px_24px_rgba(39,56,48,0.06)]">
+                <aside className="w-full border-b border-[#dfe4de] bg-[#f3f5f2] px-5 py-5 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-73 lg:flex-col lg:rounded-none lg:border-b-0 lg:border-r lg:px-6 lg:py-8 lg:shadow-[0_10px_24px_rgba(39,56,48,0.06)]">
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <div>
@@ -78,7 +78,7 @@ export function DashboardShell({
                 </aside>
 
                 <main className="w-full px-5 py-6 lg:px-12 lg:py-10">
-                    <div className="w-full max-w-[1820px]">
+                    <div className="w-full max-w-455">
                         <header className="fade-up">
                             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-[#242c28] lg:text-5xl">
                                 {greeting}

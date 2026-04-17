@@ -130,7 +130,7 @@ export default function CadastroPage() {
     return (
         <div className="min-h-screen bg-[#f8f9f7] text-[#232b26] lg:grid lg:grid-cols-2">
             <section className="relative hidden overflow-hidden border-r border-[#dfe4de] bg-[radial-gradient(circle_at_20%_20%,#f7fbf8_0%,#e7eee9_38%,#d9e3da_100%)] lg:flex lg:items-center lg:justify-center">
-                <div className="fade-up w-full max-w-[520px] px-10">
+                <div className="fade-up w-full max-w-130 px-10">
                     <div className="mb-7 flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-5xl font-semibold tracking-tight">
@@ -148,7 +148,7 @@ export default function CadastroPage() {
             </section>
 
             <section className="px-4 py-10 sm:px-6 lg:px-10 lg:py-12">
-                <div className="mx-auto w-full max-w-[560px] rounded-3xl border border-[#dce2dc] bg-white p-6 shadow-[0_14px_34px_rgba(36,50,41,0.08)] sm:p-8">
+                <div className="mx-auto w-full max-w-140 rounded-3xl border border-[#dce2dc] bg-white p-6 shadow-[0_14px_34px_rgba(36,50,41,0.08)] sm:p-8">
                     <div className="mb-6">
                         <h2 className="text-4xl font-semibold tracking-tight text-[#242d27]">
                             Criar conta

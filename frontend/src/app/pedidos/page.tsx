@@ -83,7 +83,7 @@ export default function PedidosPage() {
         <ProtectedRoute tipos={["CLIENTE"]}>
             <DashboardShell
                 greeting={`Pedidos de ${usuario?.nome || "Cliente"}`}
-                subtitle="Acompanhe status, renda informada e ajuste pedidos em analise."
+                subtitle="Acompanhe status, valor do aluguel e ajuste pedidos em analise."
                 navItems={getDashboardNavItems(usuario?.tipo, "/pedidos")}
             >
                 <div className="flex items-center justify-between">
@@ -113,7 +113,7 @@ export default function PedidosPage() {
                                     <TableHead>ID</TableHead>
                                     <TableHead>Veiculo</TableHead>
                                     <TableHead>Data</TableHead>
-                                    <TableHead>Renda Inf.</TableHead>
+                                    <TableHead>Valor do Aluguel</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="text-right">
                                         Acoes
@@ -139,14 +139,14 @@ export default function PedidosPage() {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {pedido.soma_renda
+                                            {pedido.valor_aluguel
                                                 ? new Intl.NumberFormat(
                                                       "pt-BR",
                                                       {
                                                           style: "currency",
                                                           currency: "BRL",
                                                       },
-                                                  ).format(pedido.soma_renda)
+                                                  ).format(pedido.valor_aluguel)
                                                 : "---"}
                                         </TableCell>
                                         <TableCell>

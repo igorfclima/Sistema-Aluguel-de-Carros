@@ -297,7 +297,7 @@ export default function AutomoveisPage() {
                                 >
                                     Anterior
                                 </Button>
-                                <span className="min-w-[88px] text-center">
+                                <span className="min-w-22 text-center">
                                     Pagina {safePage} de {totalPages}
                                 </span>
                                 <Button

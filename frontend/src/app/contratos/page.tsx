@@ -114,9 +114,7 @@ export default function ContratosPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[100px]">
-                                        ID
-                                    </TableHead>
+                                    <TableHead className="w-25">ID</TableHead>
                                     <TableHead>Pedido Origem</TableHead>
                                     <TableHead>Tipo</TableHead>
                                     <TableHead>Propriedade</TableHead>

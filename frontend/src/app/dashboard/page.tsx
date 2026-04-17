@@ -18,6 +18,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 type StatusPedido = Pedido["status"];
 
@@ -56,6 +57,27 @@ export default function DashboardPage() {
     const [automoveis, setAutomoveis] = useState<Automovel[]>([]);
     const [loading, setLoading] = useState(true);
     const [pedidoDetalhes, setPedidoDetalhes] = useState<Pedido | null>(null);
+
+    async function handleAtualizarStatusPedido(
+        pedidoId: number,
+        status: "APROVADO" | "CANCELADO",
+    ) {
+        try {
+            await pedidoService.atualizarStatus(pedidoId, { status });
+            setPedidos((prev) =>
+                prev.map((pedido) =>
+                    pedido.id === pedidoId ? { ...pedido, status } : pedido,
+                ),
+            );
+            toast.success(
+                status === "APROVADO"
+                    ? "Pedido aprovado com sucesso."
+                    : "Pedido recusado com sucesso.",
+            );
+        } catch {
+            toast.error("Erro ao atualizar status do pedido.");
+        }
+    }
 
     useEffect(() => {
         async function loadDashboardData() {
@@ -307,8 +329,24 @@ export default function DashboardPage() {
                                             onClick: () =>
                                                 setPedidoDetalhes(pedido),
                                         },
-                                        { label: "Aprovar", tone: "primary" },
-                                        { label: "Recusar", tone: "neutral" },
+                                        {
+                                            label: "Aprovar",
+                                            tone: "primary",
+                                            onClick: () =>
+                                                handleAtualizarStatusPedido(
+                                                    pedido.id,
+                                                    "APROVADO",
+                                                ),
+                                        },
+                                        {
+                                            label: "Recusar",
+                                            tone: "neutral",
+                                            onClick: () =>
+                                                handleAtualizarStatusPedido(
+                                                    pedido.id,
+                                                    "CANCELADO",
+                                                ),
+                                        },
                                     ]}
                                 />
                             );

@@ -64,7 +64,7 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-[#f8f9f7] text-[#232b26] lg:grid lg:grid-cols-2">
             <section className="relative hidden overflow-hidden border-r border-[#dfe4de] bg-[radial-gradient(circle_at_10%_20%,#f7fbf8_0%,#e7eee9_38%,#d9e3da_100%)] lg:flex lg:items-center lg:justify-center">
-                <div className="fade-up w-full max-w-[500px] px-10">
+                <div className="fade-up w-full max-w-125 px-10">
                     <div className="mb-7 flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-5xl font-semibold tracking-tight">
@@ -84,7 +84,7 @@ export default function LoginPage() {
             </section>
 
             <section className="flex items-center justify-center px-4 py-12 sm:px-6">
-                <div className="fade-up w-full max-w-[420px] rounded-3xl border border-[#dce2dc] bg-white px-6 py-8 shadow-[0_14px_34px_rgba(36,50,41,0.08)] sm:px-8">
+                <div className="fade-up w-full max-w-105 rounded-3xl border border-[#dce2dc] bg-white px-6 py-8 shadow-[0_14px_34px_rgba(36,50,41,0.08)] sm:px-8">
                     <div className="mb-8">
                         <h2 className="text-5xl font-semibold tracking-tight text-[#242d27]">
                             Bem-vindo de volta

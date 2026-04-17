@@ -32,7 +32,7 @@ export function WorkflowCard({
 }: WorkflowCardProps) {
     return (
         <article className="fade-up grid gap-4 rounded-3xl border border-[#dce2dc] bg-white p-4 shadow-[0_8px_22px_rgba(32,46,39,0.06)] lg:grid-cols-[100px_1fr_auto] lg:items-center">
-            <div className="flex h-[88px] w-full items-center justify-center rounded-2xl bg-[#f1f3f0] text-sm font-medium tracking-wide text-[#8a9189] lg:w-[92px]">
+            <div className="flex h-22 w-full items-center justify-center rounded-2xl bg-[#f1f3f0] text-sm font-medium tracking-wide text-[#8a9189] lg:w-23">
                 {reference}
             </div>
 

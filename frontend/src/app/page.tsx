@@ -38,7 +38,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-[#f7f8f6] text-[#262d29]">
             <header className="sticky top-0 z-20 border-b border-[#dce2db] bg-[#f7f8f6]/95 backdrop-blur">
-                <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-4 sm:px-6">
+                <div className="mx-auto flex h-16 w-full max-w-350 items-center justify-between px-4 sm:px-6">
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-3xl font-semibold tracking-tight">
@@ -76,20 +76,20 @@ export default function Home() {
             </header>
 
             <section className="border-b border-[#dce2db]">
-                <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-20">
+                <div className="mx-auto grid w-full max-w-350 gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-20">
                     <div className="fade-up">
                         <span className="inline-flex items-center gap-2 rounded-full bg-[#e5efe8] px-4 py-2 text-sm font-semibold text-[#2f6f46]">
                             <CarFront size={16} /> Plataforma lider em aluguel
                             de veiculos
                         </span>
-                        <h1 className="mt-7 max-w-[620px] text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
+                        <h1 className="mt-7 max-w-155 text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
                             Alugue o carro ideal com
                             <span className="text-[#4f9f68]">
                                 {" "}
                                 total simplicidade
                             </span>
                         </h1>
-                        <p className="mt-5 max-w-[540px] text-xl leading-relaxed text-[#5f6a61]">
+                        <p className="mt-5 max-w-135 text-xl leading-relaxed text-[#5f6a61]">
                             Gerencie pedidos, contratos e frota em uma unica
                             plataforma. Para clientes individuais, agentes
                             corporativos e bancos.
@@ -135,11 +135,11 @@ export default function Home() {
                 id="vantagens"
                 className="border-b border-[#dde3dc] bg-white/60"
             >
-                <div className="mx-auto w-full max-w-[1400px] px-4 py-20 text-center sm:px-6">
+                <div className="mx-auto w-full max-w-350 px-4 py-20 text-center sm:px-6">
                     <h2 className="text-5xl font-semibold tracking-tight">
                         Por que escolher a LocaMais?
                     </h2>
-                    <p className="mx-auto mt-4 max-w-[720px] text-xl text-[#646f65]">
+                    <p className="mx-auto mt-4 max-w-180 text-xl text-[#646f65]">
                         Uma plataforma completa que conecta clientes, empresas e
                         bancos em um so lugar.
                     </p>
@@ -187,7 +187,7 @@ export default function Home() {
             </section>
 
             <section id="numeros" className="border-b border-[#dde3dc]">
-                <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-4 py-16 text-center text-[#4f9f68] sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+                <div className="mx-auto grid w-full max-w-350 gap-10 px-4 py-16 text-center text-[#4f9f68] sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
                     {[
                         ["2.500+", "Veiculos na frota"],
                         ["98%", "Satisfacao dos clientes"],
@@ -207,11 +207,11 @@ export default function Home() {
             </section>
 
             <section id="contato" className="border-b border-[#dde3dc] py-24">
-                <div className="mx-auto w-full max-w-[900px] px-4 text-center sm:px-6">
+                <div className="mx-auto w-full max-w-225 px-4 text-center sm:px-6">
                     <h2 className="text-5xl font-semibold tracking-tight">
                         Pronto para simplificar seus alugueis?
                     </h2>
-                    <p className="mx-auto mt-4 max-w-[740px] text-2xl leading-relaxed text-[#616d62]">
+                    <p className="mx-auto mt-4 max-w-185 text-2xl leading-relaxed text-[#616d62]">
                         Cadastre-se gratuitamente e comece a gerenciar pedidos,
                         contratos e frota de forma inteligente.
                     </p>
@@ -226,7 +226,7 @@ export default function Home() {
             </section>
 
             <footer className="py-8">
-                <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center justify-between gap-3 px-4 text-[#68736a] sm:flex-row sm:px-6">
+                <div className="mx-auto flex w-full max-w-350 flex-col items-center justify-between gap-3 px-4 text-[#68736a] sm:flex-row sm:px-6">
                     <div className="flex items-center gap-3">
                         <div className="h-7 w-7 rounded-full bg-[#4f9f68]" />
                         <p className="text-3xl font-semibold tracking-tight text-[#2a332d]">

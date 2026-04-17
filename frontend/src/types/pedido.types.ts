@@ -13,6 +13,8 @@ export interface Pedido {
 
     soma_renda?: number;
     rendimentos?: { empregador: string; valor: number }[];
+    marca?: string;
+    modelo?: string;
     valor_automovel?: number;
     valor_aluguel?: number;
     placa?: string;

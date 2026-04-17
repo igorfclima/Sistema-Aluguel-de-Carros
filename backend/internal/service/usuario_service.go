@@ -70,6 +70,10 @@ func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
 		if req.CPF == "" {
 			return errors.New("cpf is required for cliente profile")
 		}
+		if req.Rendimento1 <= 0 && req.Rendimento2 <= 0 && req.Rendimento3 <= 0 {
+			return errors.New("informe pelo menos um rendimento mensal")
+		}
+
 		cliente := &model.Cliente{
 			UsuarioID: usuario.ID,
 			CPF:       req.CPF,

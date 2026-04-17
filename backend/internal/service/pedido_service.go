@@ -25,6 +25,24 @@ type pedidoService struct {
 
 const aluguelPercentual = 0.03
 
+func montarRendimentosDTO(cliente model.Cliente) []dto.RendimentoDTO {
+    rendimentos := make([]dto.RendimentoDTO, 0, len(cliente.Rendimentos))
+
+    for i, r := range cliente.Rendimentos {
+        empregador := ""
+        if i < len(cliente.Empregadores) {
+            empregador = cliente.Empregadores[i].Nome
+        }
+
+        rendimentos = append(rendimentos, dto.RendimentoDTO{
+            Empregador: empregador,
+            Valor:      r.Valor,
+        })
+    }
+
+    return rendimentos
+}
+
 func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoResponse, error) {
     cliente, err := s.clienteRepo.FindByUsuarioID(usuarioID)
     if err != nil || cliente == nil {
@@ -51,6 +69,10 @@ func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoRespons
             DataSolicitacao: p.DataSolicitacao,
             SomaRenda:       somaTotal,
             NomeCliente:     p.Cliente.Usuario.Nome,
+            CPF:             p.Cliente.CPF,
+            RG:              p.Cliente.RG,
+            Profissao:       p.Cliente.Profissao,
+            Rendimentos:     montarRendimentosDTO(p.Cliente),
 			Marca:           p.Automovel.Marca,
 			Modelo:          p.Automovel.Modelo,
 			Placa:           p.Automovel.Placa,
@@ -94,6 +116,10 @@ func (s *pedidoService) CreatePedido(req *dto.CreatePedidoRequest, usuarioID uin
         Status:          string(pedido.Status),
         DataSolicitacao: pedido.DataSolicitacao,
 		SomaRenda:       somaTotal,
+        CPF:             cliente.CPF,
+        RG:              cliente.RG,
+        Profissao:       cliente.Profissao,
+        Rendimentos:     montarRendimentosDTO(*cliente),
 		Marca:           pedido.Automovel.Marca,
 		Modelo:          pedido.Automovel.Modelo,
 		Placa:           pedido.Automovel.Placa,
@@ -146,6 +172,10 @@ func (s *pedidoService) ListAllPedidos() ([]dto.PedidoResponse, error) {
 
             SomaRenda:       somaTotal,
             NomeCliente:     p.Cliente.Usuario.Nome,
+            CPF:             p.Cliente.CPF,
+            RG:              p.Cliente.RG,
+            Profissao:       p.Cliente.Profissao,
+            Rendimentos:     montarRendimentosDTO(p.Cliente),
 			Marca:           p.Automovel.Marca,
 			Modelo:          p.Automovel.Modelo,
 			Placa:           p.Automovel.Placa,

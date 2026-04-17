@@ -30,7 +30,11 @@ func (r *clienteRepository) Create(cliente *model.Cliente) error {
 
 func (r *clienteRepository) FindByUsuarioID(usuarioID uint) (*model.Cliente, error) {
 	var cliente model.Cliente
-	result := r.db.Where("usuario_id = ?", usuarioID).First(&cliente)
+	result := r.db.
+		Preload("Rendimentos").
+		Preload("Empregadores").
+		Where("usuario_id = ?", usuarioID).
+		First(&cliente)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {

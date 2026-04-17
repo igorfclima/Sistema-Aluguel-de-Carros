@@ -16,6 +16,7 @@ type PedidoRepository interface {
 func (r *pedidoRepository) FindAll() ([]model.PedidoAluguel, error) {
     var pedidos []model.PedidoAluguel
     err := r.db.Preload("Cliente.Usuario").
+				Preload("Cliente.Empregadores").
                 Preload("Cliente.Rendimentos").
 				Preload("Automovel").
                 Find(&pedidos).Error
@@ -40,6 +41,7 @@ func (r *pedidoRepository) Create(pedido *model.PedidoAluguel) error {
 func (r *pedidoRepository) FindByClienteID(clienteID uint) ([]model.PedidoAluguel, error) {
     var pedidos []model.PedidoAluguel
     result := r.db.Preload("Cliente.Usuario").
+				   Preload("Cliente.Empregadores").
                    Preload("Cliente.Rendimentos").
 				   Preload("Automovel").
                    Where("cliente_id = ?", clienteID).

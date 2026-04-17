@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import imagemCarro from "../assets/imgs/carro.jpg";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
@@ -36,7 +37,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-[#f7f8f6] text-[#262d29]">
             <header className="sticky top-0 z-20 border-b border-[#dce2db] bg-[#f7f8f6]/95 backdrop-blur">
-                <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between px-4 sm:px-6">
+                <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-4 sm:px-6">
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-3xl font-semibold tracking-tight">
@@ -74,7 +75,7 @@ export default function Home() {
             </header>
 
             <section className="border-b border-[#dce2db]">
-                <div className="mx-auto grid w-full max-w-[1120px] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-20">
+                <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-20">
                     <div className="fade-up">
                         <span className="inline-flex items-center gap-2 rounded-full bg-[#e5efe8] px-4 py-2 text-sm font-semibold text-[#2f6f46]">
                             <CarFront size={16} /> Plataforma lider em aluguel
@@ -111,9 +112,12 @@ export default function Home() {
                     </div>
 
                     <div className="fade-up relative">
-                        <div className="h-[380px] rounded-[32px] border border-[#dce2db] bg-[radial-gradient(circle_at_24%_18%,#f5fbf7_0%,#dfe9e1_35%,#b8cbb9_100%)] p-6 shadow-[0_18px_32px_rgba(34,48,40,0.16)]">
-                            <div className="h-full rounded-[24px] border border-[#d6ded6] bg-[linear-gradient(160deg,#7c977f_0%,#485f4f_85%)]" />
-                        </div>
+                        <img
+                            src={imagemCarro.src}
+                            alt="Carro"
+                            className="h-full w-full object-cover
+                            rounded-3xl shadow-[0_12px_24px_rgba(34,48,40,0.12)]"
+                        />
                         <div className="absolute -bottom-5 left-5 rounded-3xl border border-[#dbe3db] bg-white px-5 py-4 shadow-[0_12px_24px_rgba(34,48,40,0.12)]">
                             <p className="text-sm text-[#6f786f]">
                                 Disponivel agora
@@ -130,7 +134,7 @@ export default function Home() {
                 id="vantagens"
                 className="border-b border-[#dde3dc] bg-white/60"
             >
-                <div className="mx-auto w-full max-w-[1120px] px-4 py-20 text-center sm:px-6">
+                <div className="mx-auto w-full max-w-[1400px] px-4 py-20 text-center sm:px-6">
                     <h2 className="text-5xl font-semibold tracking-tight">
                         Por que escolher a LocaMais?
                     </h2>
@@ -182,7 +186,7 @@ export default function Home() {
             </section>
 
             <section id="numeros" className="border-b border-[#dde3dc]">
-                <div className="mx-auto grid w-full max-w-[1120px] gap-10 px-4 py-16 text-center text-[#4f9f68] sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+                <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-4 py-16 text-center text-[#4f9f68] sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
                     {[
                         ["2.500+", "Veiculos na frota"],
                         ["98%", "Satisfacao dos clientes"],
@@ -221,7 +225,7 @@ export default function Home() {
             </section>
 
             <footer className="py-8">
-                <div className="mx-auto flex w-full max-w-[1120px] flex-col items-center justify-between gap-3 px-4 text-[#68736a] sm:flex-row sm:px-6">
+                <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center justify-between gap-3 px-4 text-[#68736a] sm:flex-row sm:px-6">
                     <div className="flex items-center gap-3">
                         <div className="h-7 w-7 rounded-full bg-[#4f9f68]" />
                         <p className="text-3xl font-semibold tracking-tight text-[#2a332d]">

@@ -276,9 +276,7 @@ export default function ContratosPage() {
                                                     size="sm"
                                                     className="rounded-xl"
                                                     onClick={() =>
-                                                        handleDownload(
-                                                            contrato,
-                                                        )
+                                                        handleDownload(contrato)
                                                     }
                                                 >
                                                     <Download className="mr-2 h-4 w-4" />

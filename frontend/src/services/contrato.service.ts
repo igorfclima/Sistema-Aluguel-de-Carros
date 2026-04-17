@@ -46,13 +46,11 @@ function normalizeContrato(c: ContratoApi): Contrato {
         cliente_endereco: c.cliente_endereco ?? c.ClienteEndereco,
         cliente_profissao: c.cliente_profissao ?? c.ClienteProfissao,
         agente_id: c.agente_id ?? c.AgenteID ?? 0,
-        agente_nome_aprovador:
-            c.agente_nome_aprovador ?? c.AgenteNomeAprovador,
+        agente_nome_aprovador: c.agente_nome_aprovador ?? c.AgenteNomeAprovador,
         agente_instituicao: c.agente_instituicao ?? c.AgenteInstituicao,
         banco_nome_instituicao:
             c.banco_nome_instituicao ?? c.BancoNomeInstituicao,
-        banco_codigo_bancario:
-            c.banco_codigo_bancario ?? c.BancoCodigoBancario,
+        banco_codigo_bancario: c.banco_codigo_bancario ?? c.BancoCodigoBancario,
         banco_aprovador_nome: c.banco_aprovador_nome ?? c.BancoAprovadorNome,
         valor_credito: c.valor_credito ?? c.ValorCredito,
         taxa_juros: c.taxa_juros ?? c.TaxaJuros,

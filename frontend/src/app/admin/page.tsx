@@ -244,66 +244,66 @@ export default function AdminPage() {
                                                     {pedido.status ===
                                                         "AGUARDANDO_ANALISE" &&
                                                         isAgente && (
-                                                        <>
-                                                            <Button
-                                                                size="sm"
-                                                                className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
-                                                                onClick={() =>
-                                                                    handleAprovar(
-                                                                        pedido.id,
-                                                                    )
-                                                                }
-                                                            >
-                                                                Aprovar
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="destructive"
-                                                                className="rounded-xl"
-                                                                onClick={() =>
-                                                                    handleCancelar(
-                                                                        pedido.id,
-                                                                    )
-                                                                }
-                                                            >
-                                                                Cancelar
-                                                            </Button>
-                                                        </>
-                                                    )}
-                                                    {pedido.status ===
-                                                        "APROVADO" &&
-                                                        isAgente && (
-                                                        <>
-                                                            {!contrato && (
+                                                            <>
                                                                 <Button
                                                                     size="sm"
-                                                                    variant="outline"
-                                                                    className="rounded-xl"
+                                                                    className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
                                                                     onClick={() =>
-                                                                        setContratoDialog(
-                                                                            pedido,
+                                                                        handleAprovar(
+                                                                            pedido.id,
                                                                         )
                                                                     }
                                                                 >
-                                                                    Gerar
-                                                                    contrato
+                                                                    Aprovar
                                                                 </Button>
-                                                            )}
-
-                                                            {contrato?.status ===
-                                                                "PENDENTE_ASSINATURA" && (
                                                                 <Button
                                                                     size="sm"
-                                                                    variant="outline"
+                                                                    variant="destructive"
                                                                     className="rounded-xl"
-                                                                    disabled
+                                                                    onClick={() =>
+                                                                        handleCancelar(
+                                                                            pedido.id,
+                                                                        )
+                                                                    }
                                                                 >
-                                                                    Pendente
-                                                                    assinatura
+                                                                    Cancelar
                                                                 </Button>
-                                                            )}
-                                                        </>
-                                                    )}
+                                                            </>
+                                                        )}
+                                                    {pedido.status ===
+                                                        "APROVADO" &&
+                                                        isAgente && (
+                                                            <>
+                                                                {!contrato && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="rounded-xl"
+                                                                        onClick={() =>
+                                                                            setContratoDialog(
+                                                                                pedido,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Gerar
+                                                                        contrato
+                                                                    </Button>
+                                                                )}
+
+                                                                {contrato?.status ===
+                                                                    "PENDENTE_ASSINATURA" && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="rounded-xl"
+                                                                        disabled
+                                                                    >
+                                                                        Pendente
+                                                                        assinatura
+                                                                    </Button>
+                                                                )}
+                                                            </>
+                                                        )}
 
                                                     {isBanco &&
                                                         contrato &&

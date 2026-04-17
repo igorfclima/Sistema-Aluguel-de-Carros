@@ -101,6 +101,20 @@ Abaixo está a organização do monorepo, separando a lógica de negócio do Bac
 │
 .
 ```
+## 📜 Diagramas
+
+# Casos de uso
+<img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/529ef629-f260-4694-8bf2-c0d036cb8d69" />
+
+# Diagrama de UML
+<img width="700" height="700" alt="image" src="https://github.com/user-attachments/assets/64433e0f-9d7d-4d3a-84b7-1400c517670c" />
+
+# Diagrama de componentes
+<img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/0aef4293-cc2d-429d-ba45-f3a7837b8cc9" />
+
+# Diagrama de implantação
+<img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/f70bf93a-fee7-4937-8b89-8f4ea5d5bca3" />
+
 
 ## 🔧 Instalação e Execução
 

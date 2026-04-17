@@ -8,6 +8,7 @@ import (
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/model"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/repository"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UsuarioService interface {
@@ -20,6 +21,7 @@ type usuarioService struct {
 	clienteRepo repository.ClienteRepository
 	agenteRepo  repository.AgenteRepository
 	bancoRepo   repository.BancoRepository
+	db         *gorm.DB
 }
 
 func NewUsuarioService(
@@ -27,12 +29,14 @@ func NewUsuarioService(
 	cRepo repository.ClienteRepository,
 	aRepo repository.AgenteRepository,
 	bRepo repository.BancoRepository,
+	db *gorm.DB,
 ) UsuarioService {
 	return &usuarioService{
 		usuarioRepo: uRepo,
 		clienteRepo: cRepo,
 		agenteRepo:  aRepo,
 		bancoRepo:   bRepo,
+		db:         db,
 	}
 }
 
@@ -59,83 +63,90 @@ func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
 		Tipo:  req.Tipo,
 	}
 
-	err = s.usuarioRepo.Create(usuario)
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(usuario).Error; err != nil {
+			return errors.New("failed to create user")
+		}
+
+		switch req.Tipo {
+		case "CLIENTE":
+			if req.CPF == "" {
+				return errors.New("cpf is required for cliente profile")
+			}
+			if req.Rendimento1 <= 0 && req.Rendimento2 <= 0 && req.Rendimento3 <= 0 {
+				return errors.New("informe pelo menos um rendimento mensal")
+			}
+
+			cliente := &model.Cliente{
+				UsuarioID: usuario.ID,
+				CPF:       req.CPF,
+				RG:        req.RG,
+				Endereco:  req.Endereco,
+				Profissao: req.Profissao,
+			}
+			if err := tx.Create(cliente).Error; err != nil {
+				return errors.New("failed to create client profile")
+			}
+
+			rendimentos := []float64{req.Rendimento1, req.Rendimento2, req.Rendimento3}
+			for _, valor := range rendimentos {
+				if valor <= 0 {
+					continue
+				}
+
+				rendimento := &model.Rendimento{
+					ClienteID: cliente.ID,
+					Valor:     valor,
+					Periodo:   "MENSAL",
+				}
+
+				if err := tx.Create(rendimento).Error; err != nil {
+					return errors.New("failed to create client income data")
+				}
+			}
+
+		case "AGENTE":
+			if req.NomeInstituicao == "" {
+				return errors.New("nome_instituicao is required for agente profile")
+			}
+			agente := &model.Agente{
+				UsuarioID:       usuario.ID,
+				Tipo:            req.TipoAgente,
+				NomeInstituicao: req.NomeInstituicao,
+			}
+			if err := tx.Create(agente).Error; err != nil {
+				return errors.New("failed to create agente profile")
+			}
+
+		case "BANCO":
+			if req.NomeInstituicao == "" || req.CodigoBancario == "" {
+				return errors.New("nome_instituicao and codigo_bancario are required for banco profile")
+			}
+
+			agente := &model.Agente{
+				UsuarioID:       usuario.ID,
+				Tipo:            "INSTITUICAO_FINANCEIRA",
+				NomeInstituicao: req.NomeInstituicao,
+			}
+			if err := tx.Create(agente).Error; err != nil {
+				return errors.New("failed to create base agente for banco")
+			}
+
+			banco := &model.Banco{
+				AgenteID:       agente.ID,
+				CodigoBancario: req.CodigoBancario,
+			}
+			if err := tx.Create(banco).Error; err != nil {
+				return errors.New("failed to create banco profile")
+			}
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		log.Printf("error creating user: %v", err)
-		return errors.New("failed to create user")
-	}
-
-	switch req.Tipo {
-	case "CLIENTE":
-		if req.CPF == "" {
-			return errors.New("cpf is required for cliente profile")
-		}
-		if req.Rendimento1 <= 0 && req.Rendimento2 <= 0 && req.Rendimento3 <= 0 {
-			return errors.New("informe pelo menos um rendimento mensal")
-		}
-
-		cliente := &model.Cliente{
-			UsuarioID: usuario.ID,
-			CPF:       req.CPF,
-			RG:        req.RG,
-			Endereco:  req.Endereco,
-			Profissao: req.Profissao,
-		}
-		if err := s.clienteRepo.Create(cliente); err != nil {
-			return errors.New("failed to create client profile")
-		}
-
-		rendimentos := []float64{req.Rendimento1, req.Rendimento2, req.Rendimento3}
-		for _, valor := range rendimentos {
-			if valor <= 0 {
-				continue
-			}
-
-			rendimento := &model.Rendimento{
-				ClienteID: cliente.ID,
-				Valor:     valor,
-				Periodo:   "MENSAL",
-			}
-
-			if err := s.clienteRepo.CreateRendimento(rendimento); err != nil {
-				return errors.New("failed to create client income data")
-			}
-		}
-
-	case "AGENTE":
-		if req.NomeInstituicao == "" {
-			return errors.New("nome_instituicao is required for agente profile")
-		}
-		agente := &model.Agente{
-			UsuarioID:       usuario.ID,
-			Tipo:            req.TipoAgente,
-			NomeInstituicao: req.NomeInstituicao,
-		}
-		if err := s.agenteRepo.Create(agente); err != nil {
-			return errors.New("failed to create agente profile")
-		}
-
-	case "BANCO":
-		if req.NomeInstituicao == "" || req.CodigoBancario == "" {
-			return errors.New("nome_instituicao and codigo_bancario are required for banco profile")
-		}
-
-		agente := &model.Agente{
-			UsuarioID:       usuario.ID,
-			Tipo:            "INSTITUICAO_FINANCEIRA",
-			NomeInstituicao: req.NomeInstituicao,
-		}
-		if err := s.agenteRepo.Create(agente); err != nil {
-			return errors.New("failed to create base agente for banco")
-		}
-
-		banco := &model.Banco{
-			AgenteID:       agente.ID,
-			CodigoBancario: req.CodigoBancario,
-		}
-		if err := s.bancoRepo.Create(banco); err != nil {
-			return errors.New("failed to create banco profile")
-		}
+		log.Printf("error creating user transaction: %v", err)
+		return err
 	}
 
 	return nil

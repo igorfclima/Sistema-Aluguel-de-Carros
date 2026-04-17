@@ -5,6 +5,7 @@ import imagemCarro from "../assets/imgs/carro.jpg";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Image from "next/image";
 import {
     ArrowRight,
     CarFront,
@@ -112,11 +113,11 @@ export default function Home() {
                     </div>
 
                     <div className="fade-up relative">
-                        <img
-                            src={imagemCarro.src}
+                        <Image
+                            src={imagemCarro}
                             alt="Carro"
-                            className="h-full w-full object-cover
-                            rounded-3xl shadow-[0_12px_24px_rgba(34,48,40,0.12)]"
+                            priority
+                            className="h-full w-full rounded-3xl object-cover shadow-[0_12px_24px_rgba(34,48,40,0.12)]"
                         />
                         <div className="absolute -bottom-5 left-5 rounded-3xl border border-[#dbe3db] bg-white px-5 py-4 shadow-[0_12px_24px_rgba(34,48,40,0.12)]">
                             <p className="text-sm text-[#6f786f]">

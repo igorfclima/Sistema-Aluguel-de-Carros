@@ -43,6 +43,26 @@ const CAMPOS_RENDIMENTO = [
     { i: 3, empregadorKey: "empregador3", rendimentoKey: "rendimento3" },
 ] as const;
 
+function parseRendimentoValue(value: string): number {
+    const raw = value.trim();
+    if (!raw) return 0;
+
+    let normalized = raw;
+    const hasComma = raw.includes(",");
+    const hasDot = raw.includes(".");
+
+    if (hasComma && hasDot && raw.lastIndexOf(",") > raw.lastIndexOf(".")) {
+        // Formato pt-BR (ex.: 1.234,56)
+        normalized = raw.replace(/\./g, "").replace(",", ".");
+    } else if (hasComma && !hasDot) {
+        // Formato com virgula decimal (ex.: 1234,56)
+        normalized = raw.replace(",", ".");
+    }
+
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export default function CadastroPage() {
     const [form, setForm] = useState<CadastroForm>({
         nome: "",
@@ -83,12 +103,16 @@ export default function CadastroPage() {
 
         setLoading(true);
         try {
+            const rendimento1 = parseRendimentoValue(form.rendimento1);
+            const rendimento2 = parseRendimentoValue(form.rendimento2);
+            const rendimento3 = parseRendimentoValue(form.rendimento3);
+
             await authService.cadastrar({
                 ...form,
                 tipo: form.tipo,
-                rendimento1: Number(form.rendimento1 || 0),
-                rendimento2: Number(form.rendimento2 || 0),
-                rendimento3: Number(form.rendimento3 || 0),
+                rendimento1,
+                rendimento2,
+                rendimento3,
             });
             toast.success("Cadastro realizado!", {
                 description: "Faça login para continuar.",

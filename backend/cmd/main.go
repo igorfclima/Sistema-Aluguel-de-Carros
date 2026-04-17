@@ -33,7 +33,7 @@ func main() {
 	creditoRepo := repository.NewContratoCreditoRepository(db)
 
 	// Services
-	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo)
+	usuarioService := service.NewUsuarioService(usuarioRepo, clienteRepo, agenteRepo, bancoRepo, db)
 	authService := service.NewAuthService(usuarioRepo, clienteRepo, db)
 	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo, agenteRepo)
 	automovelService := service.NewAutomovelService(automovelRepo)

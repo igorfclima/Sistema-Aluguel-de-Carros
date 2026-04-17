@@ -91,8 +91,9 @@ export default function DashboardPage() {
     }, [automoveis]);
 
     const pedidosCliente = useMemo(() => {
-        return pedidos.filter((pedido) => pedido.cliente_id === usuario?.id);
-    }, [pedidos, usuario?.id]);
+        // A API de cliente já retorna somente os pedidos do usuário autenticado.
+        return pedidos;
+    }, [pedidos]);
 
     const navItemsByRole = {
         CLIENTE: [
@@ -139,29 +140,14 @@ export default function DashboardPage() {
         const aguardandoAprovacao = pedidosCliente.filter(
             (pedido) => pedido.status === "AGUARDANDO_ANALISE",
         );
+        const pedidosClienteIds = new Set(
+            pedidosCliente.map((pedido) => pedido.id),
+        );
         const contratosComCredito = contratos.filter(
             (contrato) =>
-                contrato.cliente_id === usuario?.id &&
-                contrato.tipo === "COM_CREDITO",
+                contrato.tipo === "COM_CREDITO" &&
+                pedidosClienteIds.has(contrato.pedido_id),
         );
-
-        const acoesNecessarias = [
-            {
-                title: "Completar Cadastro de Rendimentos",
-                subtitle: "Envie comprovantes para acelerar a analise.",
-                cta: "Enviar agora",
-            },
-            {
-                title: "Assinar Contrato de Aluguel",
-                subtitle: "Pedido #4829 aprovado e aguardando assinatura.",
-                cta: "Assinar contrato",
-            },
-            {
-                title: "Enviar Comprovante",
-                subtitle: "Parcela inicial pendente de validacao.",
-                cta: "Anexar comprovante",
-            },
-        ].slice(0, 3);
 
         return (
             <>
@@ -182,7 +168,7 @@ export default function DashboardPage() {
                     ]}
                 />
 
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+                <div className="grid gap-6">
                     <section className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-4xl font-semibold tracking-tight text-[#263029]">
@@ -234,11 +220,6 @@ export default function DashboardPage() {
                         )}
                     </section>
 
-                    <ActionSidebar
-                        heading="Acoes Necessarias"
-                        footerButtonLabel="Ver todas as pendencias"
-                        items={acoesNecessarias}
-                    />
                 </div>
             </>
         );

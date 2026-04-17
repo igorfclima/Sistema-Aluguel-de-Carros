@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/dto"
@@ -26,6 +27,13 @@ func (h *UsuarioHandler) Create(c *gin.Context) {
 
 	err := h.usuarioService.CreateUsuario(&req)
 	if err != nil {
+		if strings.Contains(err.Error(), "required") ||
+			strings.Contains(err.Error(), "informe pelo menos") ||
+			strings.Contains(err.Error(), "already in use") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

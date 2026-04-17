@@ -110,8 +110,13 @@ func (h *PedidoHandler) Update(c *gin.Context) {
         return
     }
 
-    usuarioID := c.MustGet("usuarioID").(uint)
-    err := h.pedidoService.UpdatePedido(uint(id), usuarioID, &req)
+    userIDValue, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+        return
+    }
+
+    err := h.pedidoService.UpdatePedido(uint(id), userIDValue.(uint), &req)
     if err != nil {
         c.JSON(400, gin.H{"error": err.Error()})
         return
@@ -121,9 +126,13 @@ func (h *PedidoHandler) Update(c *gin.Context) {
 
 func (h *PedidoHandler) Cancel(c *gin.Context) {
     id, _ := strconv.Atoi(c.Param("id"))
-    usuarioID := c.MustGet("usuarioID").(uint)
+    userIDValue, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+        return
+    }
 
-    err := h.pedidoService.CancelarPedido(uint(id), usuarioID)
+    err := h.pedidoService.CancelarPedido(uint(id), userIDValue.(uint))
     if err != nil {
         c.JSON(400, gin.H{"error": err.Error()})
         return

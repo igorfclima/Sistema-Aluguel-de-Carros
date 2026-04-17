@@ -3,6 +3,7 @@ import { Clock3 } from "lucide-react";
 export interface WorkflowAction {
     label: string;
     tone?: "primary" | "neutral" | "ghost";
+    onClick?: () => void;
 }
 
 interface WorkflowCardProps {
@@ -59,6 +60,7 @@ export function WorkflowCard({
                         <button
                             key={action.label}
                             type="button"
+                            onClick={action.onClick}
                             className={`rounded-2xl border px-4 py-2 text-sm font-semibold transition ${toneClass[tone]}`}
                         >
                             {action.label}

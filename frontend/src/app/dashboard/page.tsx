@@ -12,6 +12,12 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { SummaryStats } from "@/components/dashboard/SummaryStats";
 import { WorkflowCard } from "@/components/dashboard/WorkflowCard";
 import { ActionSidebar } from "@/components/dashboard/ActionSidebar";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 type StatusPedido = Pedido["status"];
 
@@ -49,6 +55,7 @@ export default function DashboardPage() {
     const [contratos, setContratos] = useState<Contrato[]>([]);
     const [automoveis, setAutomoveis] = useState<Automovel[]>([]);
     const [loading, setLoading] = useState(true);
+    const [pedidoDetalhes, setPedidoDetalhes] = useState<Pedido | null>(null);
 
     useEffect(() => {
         async function loadDashboardData() {
@@ -255,9 +262,7 @@ export default function DashboardPage() {
                 !pedidosComContrato.has(pedido.id),
         );
         const pedidosAvaliacao = pedidos.filter(
-            (pedido) =>
-                pedido.status === "AGUARDANDO_ANALISE" ||
-                pedido.status === "APROVADO",
+            (pedido) => pedido.status === "AGUARDANDO_ANALISE",
         );
 
         const aprovadosSemContrato = pedidos.filter(
@@ -319,6 +324,8 @@ export default function DashboardPage() {
                                         {
                                             label: "Ver Detalhes do Cliente",
                                             tone: "ghost",
+                                            onClick: () =>
+                                                setPedidoDetalhes(pedido),
                                         },
                                         { label: "Aprovar", tone: "primary" },
                                         { label: "Recusar", tone: "neutral" },
@@ -480,6 +487,63 @@ export default function DashboardPage() {
                 {(!usuario?.tipo || usuario?.tipo === "CLIENTE") &&
                     renderClienteDashboard()}
             </DashboardShell>
+
+            <Dialog
+                open={!!pedidoDetalhes}
+                onOpenChange={(open) => !open && setPedidoDetalhes(null)}
+            >
+                <DialogContent className="max-w-xl rounded-3xl border-[#dce2dc]">
+                    <DialogHeader>
+                        <DialogTitle>Detalhes do cliente</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="grid gap-3 text-sm text-[#425044] sm:grid-cols-2">
+                        <div className="rounded-2xl bg-[#f4f8f5] p-3">
+                            <p className="text-xs uppercase tracking-wide text-[#6c7a6f]">
+                                Nome
+                            </p>
+                            <p className="mt-1 font-semibold text-[#273128]">
+                                {pedidoDetalhes?.nome_cliente ||
+                                    "Nao informado"}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-[#f4f8f5] p-3">
+                            <p className="text-xs uppercase tracking-wide text-[#6c7a6f]">
+                                CPF
+                            </p>
+                            <p className="mt-1 font-semibold text-[#273128]">
+                                {pedidoDetalhes?.cpf || "Nao informado"}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-[#f4f8f5] p-3">
+                            <p className="text-xs uppercase tracking-wide text-[#6c7a6f]">
+                                RG
+                            </p>
+                            <p className="mt-1 font-semibold text-[#273128]">
+                                {pedidoDetalhes?.rg || "Nao informado"}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-[#f4f8f5] p-3">
+                            <p className="text-xs uppercase tracking-wide text-[#6c7a6f]">
+                                Profissao
+                            </p>
+                            <p className="mt-1 font-semibold text-[#273128]">
+                                {pedidoDetalhes?.profissao || "Nao informado"}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-[#f4f8f5] p-3 sm:col-span-2">
+                            <p className="text-xs uppercase tracking-wide text-[#6c7a6f]">
+                                Renda total comprovada
+                            </p>
+                            <p className="mt-1 text-lg font-semibold text-[#2f6f46]">
+                                {formatCurrency(
+                                    pedidoDetalhes?.soma_renda || 0,
+                                )}
+                            </p>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </ProtectedRoute>
     );
 }

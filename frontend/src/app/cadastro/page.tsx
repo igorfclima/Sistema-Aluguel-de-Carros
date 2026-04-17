@@ -288,6 +288,7 @@ export default function CadastroPage() {
                                                         value={
                                                             form[rendimentoKey]
                                                         }
+                                                        required={i === 1}
                                                         onChange={(e) =>
                                                             handleChange(
                                                                 rendimentoKey,

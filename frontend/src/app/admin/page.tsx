@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { pedidoService } from "@/services/pedido.service";
 import { contratoService } from "@/services/contrato.service";
@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TipoContrato, TipoPropriedade } from "@/types/contrato.types";
+import { Contrato } from "@/types/contrato.types";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { useAuth } from "@/context/AuthContext";
 import { getDashboardNavItems } from "@/lib/dashboard-nav";
@@ -48,6 +49,7 @@ const statusLabel: Record<string, string> = {
 export default function AdminPage() {
     const { usuario } = useAuth();
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
+    const [contratos, setContratos] = useState<Contrato[]>([]);
     const [loading, setLoading] = useState(true);
     const [contratoDialog, setContratoDialog] = useState<Pedido | null>(null);
     const [tipoContrato, setTipoContrato] = useState<TipoContrato>("SIMPLES");
@@ -55,12 +57,37 @@ export default function AdminPage() {
         useState<TipoPropriedade>("CLIENTE");
 
     useEffect(() => {
-        pedidoService
-            .listar()
-            .then(setPedidos)
-            .catch(() => toast.error("Erro ao carregar pedidos."))
-            .finally(() => setLoading(false));
+        async function loadData() {
+            setLoading(true);
+
+            const [pedidosRes, contratosRes] = await Promise.allSettled([
+                pedidoService.listar(),
+                contratoService.listar(),
+            ]);
+
+            if (pedidosRes.status === "fulfilled") {
+                setPedidos(pedidosRes.value);
+            } else {
+                toast.error("Erro ao carregar pedidos.");
+            }
+
+            if (contratosRes.status === "fulfilled") {
+                setContratos(contratosRes.value);
+            }
+
+            setLoading(false);
+        }
+
+        loadData();
     }, []);
+
+    const contratoPorPedido = useMemo(
+        () =>
+            new Map(
+                contratos.map((contrato) => [contrato.pedido_id, contrato]),
+            ),
+        [contratos],
+    );
 
     async function handleAprovar(id: number) {
         try {
@@ -102,6 +129,10 @@ export default function AdminPage() {
                 tipo: tipoContrato,
                 tipo_propriedade: propriedadeFinal,
             });
+
+            const contratosAtualizados = await contratoService.listar();
+            setContratos(contratosAtualizados);
+
             toast.success("Contrato gerado. Agora ele precisa ser assinado.");
             setContratoDialog(null);
         } catch {
@@ -140,110 +171,140 @@ export default function AdminPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {pedidos.map((pedido) => (
-                                    <TableRow key={pedido.id}>
-                                        <TableCell>#{pedido.id}</TableCell>
-                                        <TableCell>
-                                            #{pedido.cliente_id}
-                                        </TableCell>
-                                        <TableCell>
-                                            #{pedido.automovel_id}
-                                        </TableCell>
-                                        <TableCell>
-                                            {format(
-                                                new Date(
-                                                    pedido.data_solicitacao,
-                                                ),
-                                                "dd/MM/yyyy",
-                                                {
-                                                    locale: ptBR,
-                                                },
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge>
-                                                {statusLabel[pedido.status]}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex gap-2">
-                                                {pedido.status ===
-                                                    "AGUARDANDO_ANALISE" && (
-                                                    <>
-                                                        <Button
-                                                            size="sm"
-                                                            className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
-                                                            onClick={() =>
-                                                                handleAprovar(
-                                                                    pedido.id,
-                                                                )
-                                                            }
-                                                        >
-                                                            Aprovar
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="destructive"
-                                                            className="rounded-xl"
-                                                            onClick={() =>
-                                                                handleCancelar(
-                                                                    pedido.id,
-                                                                )
-                                                            }
-                                                        >
-                                                            Cancelar
-                                                        </Button>
-                                                    </>
+                                {pedidos.map((pedido) => {
+                                    const contrato = contratoPorPedido.get(
+                                        pedido.id,
+                                    );
+                                    const statusVisivel =
+                                        contrato?.status ===
+                                        "PENDENTE_ASSINATURA"
+                                            ? "Pendente assinatura"
+                                            : statusLabel[pedido.status];
+
+                                    return (
+                                        <TableRow key={pedido.id}>
+                                            <TableCell>#{pedido.id}</TableCell>
+                                            <TableCell>
+                                                #{pedido.cliente_id}
+                                            </TableCell>
+                                            <TableCell>
+                                                #{pedido.automovel_id}
+                                            </TableCell>
+                                            <TableCell>
+                                                {format(
+                                                    new Date(
+                                                        pedido.data_solicitacao,
+                                                    ),
+                                                    "dd/MM/yyyy",
+                                                    {
+                                                        locale: ptBR,
+                                                    },
                                                 )}
-                                                {pedido.status ===
-                                                    "APROVADO" && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="rounded-xl"
-                                                        onClick={() =>
-                                                            setContratoDialog(
-                                                                pedido,
-                                                            )
-                                                        }
-                                                    >
-                                                        Gerar contrato
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-[#69756b]">
-                                                Definido na geracao do contrato
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            {pedido.soma_renda !== undefined &&
-                                            pedido.soma_renda !== null ? (
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-green-700">
-                                                        {new Intl.NumberFormat(
-                                                            "pt-BR",
-                                                            {
-                                                                style: "currency",
-                                                                currency: "BRL",
-                                                            },
-                                                        ).format(
-                                                            pedido.soma_renda,
-                                                        )}
-                                                    </span>
-                                                    <span className="text-[10px] uppercase text-gray-500">
-                                                        Renda comprovada
-                                                    </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge>{statusVisivel}</Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex gap-2">
+                                                    {pedido.status ===
+                                                        "AGUARDANDO_ANALISE" && (
+                                                        <>
+                                                            <Button
+                                                                size="sm"
+                                                                className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
+                                                                onClick={() =>
+                                                                    handleAprovar(
+                                                                        pedido.id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Aprovar
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="destructive"
+                                                                className="rounded-xl"
+                                                                onClick={() =>
+                                                                    handleCancelar(
+                                                                        pedido.id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Cancelar
+                                                            </Button>
+                                                        </>
+                                                    )}
+                                                    {pedido.status ===
+                                                        "APROVADO" && (
+                                                        <>
+                                                            {!contrato && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="rounded-xl"
+                                                                    onClick={() =>
+                                                                        setContratoDialog(
+                                                                            pedido,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Gerar
+                                                                    contrato
+                                                                </Button>
+                                                            )}
+
+                                                            {contrato?.status ===
+                                                                "PENDENTE_ASSINATURA" && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="rounded-xl"
+                                                                    disabled
+                                                                >
+                                                                    Pendente
+                                                                    assinatura
+                                                                </Button>
+                                                            )}
+                                                        </>
+                                                    )}
                                                 </div>
-                                            ) : (
-                                                <span className="text-gray-400">
-                                                    Nao informado
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-sm text-[#69756b]">
+                                                    Definido na geracao do
+                                                    contrato
                                                 </span>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                            </TableCell>
+                                            <TableCell>
+                                                {pedido.soma_renda !==
+                                                    undefined &&
+                                                pedido.soma_renda !== null ? (
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-green-700">
+                                                            {new Intl.NumberFormat(
+                                                                "pt-BR",
+                                                                {
+                                                                    style: "currency",
+                                                                    currency:
+                                                                        "BRL",
+                                                                },
+                                                            ).format(
+                                                                pedido.soma_renda,
+                                                            )}
+                                                        </span>
+                                                        <span className="text-[10px] uppercase text-gray-500">
+                                                            Renda comprovada
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-gray-400">
+                                                        Nao informado
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
                     </div>

@@ -257,39 +257,47 @@ export default function CadastroPage() {
                                         Rendimentos mensais (maximo 3)
                                     </p>
                                     {CAMPOS_RENDIMENTO.map(
-                                        ({ i, empregadorKey, rendimentoKey }) => {
-                                        return (
-                                            <div
-                                                key={i}
-                                                className="grid gap-2 sm:grid-cols-2"
-                                            >
-                                                <Input
-                                                    className="h-11 rounded-2xl border-[#d7ddd7]"
-                                                    placeholder={`Empregador ${i}`}
-                                                    value={form[empregadorKey]}
-                                                    onChange={(e) =>
-                                                        handleChange(
-                                                            empregadorKey,
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <Input
-                                                    className="h-11 rounded-2xl border-[#d7ddd7]"
-                                                    type="number"
-                                                    step="0.01"
-                                                    placeholder="Valor mensal"
-                                                    value={form[rendimentoKey]}
-                                                    onChange={(e) =>
-                                                        handleChange(
-                                                            rendimentoKey,
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        );
-                                    },
+                                        ({
+                                            i,
+                                            empregadorKey,
+                                            rendimentoKey,
+                                        }) => {
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    className="grid gap-2 sm:grid-cols-2"
+                                                >
+                                                    <Input
+                                                        className="h-11 rounded-2xl border-[#d7ddd7]"
+                                                        placeholder={`Empregador ${i}`}
+                                                        value={
+                                                            form[empregadorKey]
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleChange(
+                                                                empregadorKey,
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                    />
+                                                    <Input
+                                                        className="h-11 rounded-2xl border-[#d7ddd7]"
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="Valor mensal"
+                                                        value={
+                                                            form[rendimentoKey]
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleChange(
+                                                                rendimentoKey,
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+                                            );
+                                        },
                                     )}
                                 </div>
                             </>

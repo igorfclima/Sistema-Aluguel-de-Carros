@@ -1,62 +1,151 @@
 # Sistema de Aluguel de Carros
 
-Sistema completo para gestão de aluguel de automóveis, integrando clientes, agentes financeiros e administradores. O projeto abrange desde a solicitação de aluguel até a análise de crédito e formalização de contratos.
+## 🚧 Status do Projeto
 
-## Tecnologias
+[![Versão](https://img.shields.io/badge/Versão-v1.0.0-blue?style=for-the-badge)](https://github.com/igorfclima/Sistema-Aluguel-de-Carros/releases)
+![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-- Backend: Go (Golang) com GORM (ORM)
-- Frontend: Next.js (TypeScript), Tailwind CSS e Shadcn/UI
-- Banco de Dados: PostgreSQL (Hospedado via Railway)
-- Autenticação: JWT (JSON Web Tokens)
+---
 
-## Funcionalidades Principais
+## 📚 Índice
+- [Links Úteis](#-links-úteis)
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Funcionalidades Principais](#-funcionalidades-principais)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Arquitetura](#-arquitetura)
+- [Instalação e Execução](#-instalação-e-execução)
+- [Estrutura de Pastas](#-estrutura-de-pastas)
 
-### Subsistema de Clientes
-- Cadastro de usuários com dados pessoais, profissionais e múltiplos rendimentos.
-- Solicitação de pedidos de aluguel associados a automóveis disponíveis.
-- Acompanhamento de status e edição de pedidos em análise.
+---
 
-### Subsistema de Agentes (Bancos e Empresas)
-- Painel de análise de pedidos pendentes.
-- Visualização de dossiê financeiro (soma de rendas comprovadas).
-- Aprovação ou cancelamento de solicitações.
-- Registro de propriedade do veículo (Empresa, Banco ou Cliente).
+## 🔗 Links Úteis
+* 🌐 **Demo Online:** [Acesse a Aplicação Web](https://sistema-aluguel-de-carros.vercel.app)
+* 📖 **Documentação:** [Swagger API Docs](https://sistema-aluguel-de-carros-production.up.railway.app/api/swagger/index.html)
 
-### Subsistema de Gestão
-- Cadastro e controle de frota (marca, modelo, ano, placa e matrícula).
-- Formalização de contratos pós-aprovação.
-- Geração de documentos de contrato vinculados ao proprietário legal.
+---
 
-## Arquitetura do Sistema
+## 📝 Sobre o Projeto
+O **Sistema de Aluguel de Carros** foi desenvolvido para automatizar e gerenciar o ciclo de vida de locação de veículos. O projeto integra clientes, agentes financeiros e administradores de frota em uma plataforma unificada.
 
-O projeto segue os princípios de separação de responsabilidades:
+- **Por que ele existe:** Para substituir processos manuais de análise de crédito por uma plataforma integrada.
+- **Qual problema ele resolve:** Agiliza a análise de pedidos de aluguel através de dossiês financeiros automatizados e garante o rastreio da posse legal do veículo.
 
-- Models: Definição das entidades e relacionamentos GORM.
-- Repository: Camada de persistência de dados e consultas com Preload.
-- Service: Regras de negócio, cálculos de renda e validações.
-- Handlers/Controllers: Exposição da API REST e manipulação de JSON.
+---
 
-## Como Executar
+## ✨ Funcionalidades Principais
+- 🔐 **Autenticação JWT:** Login seguro com níveis de acesso (CLIENTE e AGENTE).
+- 🚗 **Gestão de Frota:** Cadastro completo de automóveis com controle de matrícula e placa.
+- 💰 **Dossiê Financeiro:** Soma automatizada de múltiplos rendimentos para análise de crédito.
+- 📄 **Fluxo de Contratos:** Formalização de contratos de crédito ou aluguel direto.
+- 📊 **Painel do Agente:** Interface dedicada para aprovação de solicitações pendentes.
+
+---
+
+## 🛠 Tecnologias Utilizadas
+
+### 💻 Front-end
+* **Framework:** Next.js 14+ (App Router)
+* **Linguagem:** TypeScript
+* **Estilização:** Tailwind CSS & Shadcn/UI
+
+### 🖥️ Back-end
+* **Linguagem:** Go (Golang) 1.22+
+* **Framework:** Gin Gonic
+* **ORM:** GORM
+* **Banco de Dados:** PostgreSQL
+
+---
+
+## 🏗 Arquitetura
+O sistema segue os princípios de separação de responsabilidades:
+- **Models:** Definição das entidades e relacionamentos.
+- **Handlers:** Controladores das rotas REST e validação de JSON.
+- **Services:** Camada de lógica de negócio e regras do sistema.
+
+---
+
+---
+
+## 📂 Estrutura de Pastas
+
+Abaixo está a organização do monorepo, separando a lógica de negócio do Backend e a interface do Frontend.
+
+```text
+.
+├── /frontend                    # Aplicação Next.js (TypeScript + Tailwind)
+│   ├── /src
+│   │   ├── /components          # Componentes reutilizáveis (Shadcn/UI)
+│   │   ├── /app                 # Rotas e páginas da aplicação
+│   │   ├── /services            # Chamadas de API (Axios/Fetch)
+│   │   ├── /assets              # Imagens do projeto
+│   │   ├── /context             # Contextos e auth
+│   │   ├── /lib                 #
+│   │   └── /types               # Tipos e statics
+│   ├── .env.local               # Variáveis de ambiente do Frontend
+│   └── package.json             # Dependências e scripts Node.js
+│
+├── /backend                     # API REST em Go (Golang)
+│   ├── /internal
+│   │   ├── /handler             # Manipuladores de rotas (Controllers)
+│   │   ├── /dto                 # DTOs
+│   │   ├── /models              # Modelos de banco
+│   │   ├── /service             # Regras de negócio e validações
+│   │   ├── /repository          # Persistência e consultas GORM
+│   │   └── /middleware          # Autenticação JWT e CORS
+│   ├── /pkgs/database           # Configuração de conexão com PostgreSQL
+│   ├── go.mod                   # Módulos e dependências do Go
+│   └── /cmd/main.go                  # Ponto de entrada da aplicação
+│
+.
+```
+
+## 🔧 Instalação e Execução
 
 ### Pré-requisitos
-- Go 1.20+
-- Node.js 18+
+* **Go:** 1.20+
+* **Node.js:** 18.x+
+* **Docker**
 
-### Instalação
+### ⚡ Como Executar
 
-1. Clone o repositório:
-   git clone https://github.com/igorfclima/Sistema-Aluguel-de-Carros.git
+### Backend (`/backend/.env`)
 
-2. Configure o Backend:
-   - Crie um arquivo .env na pasta backend com a sua DATABASE_URL.
-   - Execute: go run main.go
+```env
+PORT=8080
+DATABASE_URL=postgres://usuario:senha@localhost:5432/nome_do_banco
+JWT_SECRET=sua_chave_secreta_aqui
+```
 
-3. Configure o Frontend:
-   - Execute: npm install
-   - Execute: npm run dev
+---
 
-## Regras de Negócio Implementadas
+### Frontend (`/frontend/.env.local`)
 
-1. Associação de Contrato: Pedidos aprovados por agentes bancários geram contratos de crédito.
-2. Propriedade: O sistema rastreia a transição da posse do veículo entre os três atores previstos.
-3. Segurança: Rotas protegidas por middleware que validam o tipo de usuário.
+```env
+VITE_API_URL=http://localhost:8080/api
+```
+
+---
+
+## ⚡ Como Executar
+
+### Terminal 1: Back-end (Go)
+
+```bash
+cd backend
+go mod tidy
+go run main.go
+```
+
+---
+
+### Terminal 2: Front-end (Next.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+

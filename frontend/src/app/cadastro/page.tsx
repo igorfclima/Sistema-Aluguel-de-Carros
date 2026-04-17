@@ -17,12 +17,38 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
+type CadastroForm = {
+    nome: string;
+    email: string;
+    senha: string;
+    tipo: TipoUsuario | "";
+    cpf: string;
+    rg: string;
+    endereco: string;
+    profissao: string;
+    nome_instituicao: string;
+    tipo_agente: string;
+    codigo_bancario: string;
+    empregador1: string;
+    rendimento1: string;
+    empregador2: string;
+    rendimento2: string;
+    empregador3: string;
+    rendimento3: string;
+};
+
+const CAMPOS_RENDIMENTO = [
+    { i: 1, empregadorKey: "empregador1", rendimentoKey: "rendimento1" },
+    { i: 2, empregadorKey: "empregador2", rendimentoKey: "rendimento2" },
+    { i: 3, empregadorKey: "empregador3", rendimentoKey: "rendimento3" },
+] as const;
+
 export default function CadastroPage() {
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<CadastroForm>({
         nome: "",
         email: "",
         senha: "",
-        tipo: "" as TipoUsuario,
+        tipo: "",
         cpf: "",
         rg: "",
         endereco: "",
@@ -40,16 +66,26 @@ export default function CadastroPage() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    function handleChange(field: string, value: string) {
+    function handleChange<K extends keyof CadastroForm>(
+        field: K,
+        value: CadastroForm[K],
+    ) {
         setForm((prev) => ({ ...prev, [field]: value }));
     }
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!form.tipo) {
+            toast.error("Selecione o tipo de conta.");
+            return;
+        }
+
         setLoading(true);
         try {
             await authService.cadastrar({
                 ...form,
+                tipo: form.tipo,
                 rendimento1: Number(form.rendimento1 || 0),
                 rendimento2: Number(form.rendimento2 || 0),
                 rendimento3: Number(form.rendimento3 || 0),
@@ -138,7 +174,9 @@ export default function CadastroPage() {
                             <Label>Tipo de conta</Label>
                             <Select
                                 value={form.tipo}
-                                onValueChange={(v) => handleChange("tipo", v)}
+                                onValueChange={(v) =>
+                                    handleChange("tipo", v as TipoUsuario)
+                                }
                                 required
                             >
                                 <SelectTrigger className="h-11 rounded-2xl border-[#d7ddd7]">
@@ -218,12 +256,8 @@ export default function CadastroPage() {
                                     <p className="text-sm font-semibold text-[#425044]">
                                         Rendimentos mensais (maximo 3)
                                     </p>
-                                    {[1, 2, 3].map((i) => {
-                                        const empregadorKey =
-                                            `empregador${i}` as const;
-                                        const rendimentoKey =
-                                            `rendimento${i}` as const;
-
+                                    {CAMPOS_RENDIMENTO.map(
+                                        ({ i, empregadorKey, rendimentoKey }) => {
                                         return (
                                             <div
                                                 key={i}
@@ -255,7 +289,8 @@ export default function CadastroPage() {
                                                 />
                                             </div>
                                         );
-                                    })}
+                                    },
+                                    )}
                                 </div>
                             </>
                         )}

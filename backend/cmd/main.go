@@ -37,7 +37,7 @@ func main() {
 	authService := service.NewAuthService(usuarioRepo, clienteRepo, db)
 	pedidoService := service.NewPedidoService(pedidoRepo, clienteRepo, agenteRepo)
 	automovelService := service.NewAutomovelService(automovelRepo)
-	contratoService := service.NewContratoService(contratoRepo, pedidoRepo, agenteRepo, db)
+	contratoService := service.NewContratoService(contratoRepo, pedidoRepo, agenteRepo, bancoRepo, creditoRepo, db)
 	creditoService := service.NewCreditoService(creditoRepo, contratoRepo, bancoRepo)
 
 	// Handlers
@@ -78,8 +78,12 @@ func main() {
 		protected.PATCH("/pedidos/:id/status", pedidoHandler.UpdateStatus)
 		protected.GET("/automoveis", automovelHandler.ListAll)
 		protected.POST("/automoveis", automovelHandler.Create)
+		protected.PUT("/automoveis/:id", automovelHandler.Update)
+		protected.DELETE("/automoveis/:id", automovelHandler.Delete)
 		protected.GET("/contratos", contratoHandler.ListAll)
 		protected.POST("/contratos", contratoHandler.Create)
+		protected.POST("/contratos/:id/assinar", contratoHandler.Assinar)
+		protected.POST("/contratos/:id/aprovar-credito", contratoHandler.AprovarCredito)
 		protected.POST("/creditos", creditoHandler.Create)
 	}
 

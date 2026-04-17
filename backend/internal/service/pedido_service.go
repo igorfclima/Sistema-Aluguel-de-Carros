@@ -23,6 +23,8 @@ type pedidoService struct {
 	agenteRepo  repository.AgenteRepository
 }
 
+const aluguelPercentual = 0.03
+
 func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoResponse, error) {
     cliente, err := s.clienteRepo.FindByUsuarioID(usuarioID)
     if err != nil || cliente == nil {
@@ -49,6 +51,11 @@ func (s *pedidoService) GetPedidosByCliente(usuarioID uint) ([]dto.PedidoRespons
             DataSolicitacao: p.DataSolicitacao,
             SomaRenda:       somaTotal,
             NomeCliente:     p.Cliente.Usuario.Nome,
+			Marca:           p.Automovel.Marca,
+			Modelo:          p.Automovel.Modelo,
+			Placa:           p.Automovel.Placa,
+			ValorAutomovel:  p.Automovel.Valor,
+			ValorAluguel:    p.Automovel.Valor * aluguelPercentual,
         })
     }
 
@@ -87,6 +94,11 @@ func (s *pedidoService) CreatePedido(req *dto.CreatePedidoRequest, usuarioID uin
         Status:          string(pedido.Status),
         DataSolicitacao: pedido.DataSolicitacao,
 		SomaRenda:       somaTotal,
+		Marca:           pedido.Automovel.Marca,
+		Modelo:          pedido.Automovel.Modelo,
+		Placa:           pedido.Automovel.Placa,
+		ValorAutomovel:  pedido.Automovel.Valor,
+		ValorAluguel:    pedido.Automovel.Valor * aluguelPercentual,
     }
 
     return response, nil
@@ -134,6 +146,11 @@ func (s *pedidoService) ListAllPedidos() ([]dto.PedidoResponse, error) {
 
             SomaRenda:       somaTotal,
             NomeCliente:     p.Cliente.Usuario.Nome,
+			Marca:           p.Automovel.Marca,
+			Modelo:          p.Automovel.Modelo,
+			Placa:           p.Automovel.Placa,
+			ValorAutomovel:  p.Automovel.Valor,
+			ValorAluguel:    p.Automovel.Valor * aluguelPercentual,
         })
     }
     return response, nil

@@ -8,6 +8,7 @@ import (
 type ClienteRepository interface {
 	Create(cliente *model.Cliente) error
 	FindByUsuarioID(usuarioID uint) (*model.Cliente, error)
+	CreateRendimento(rendimento *model.Rendimento) error
 }
 
 type clienteRepository struct {
@@ -39,4 +40,8 @@ func (r *clienteRepository) FindByUsuarioID(usuarioID uint) (*model.Cliente, err
 	}
 
 	return &cliente, nil
+}
+
+func (r *clienteRepository) CreateRendimento(rendimento *model.Rendimento) error {
+	return r.db.Create(rendimento).Error
 }

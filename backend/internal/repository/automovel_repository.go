@@ -8,6 +8,9 @@ import (
 type AutomovelRepository interface {
 	Create(automovel *model.Automovel) error
 	FindAll() ([]model.Automovel, error)
+	Update(automovel *model.Automovel) error
+	Delete(id uint) error
+	FindByID(id uint) (*model.Automovel, error)
 }
 
 type automovelRepository struct {
@@ -30,4 +33,22 @@ func (r *automovelRepository) FindAll() ([]model.Automovel, error) {
 	var automoveis []model.Automovel
 	err := r.db.Find(&automoveis).Error
 	return automoveis, err
+}
+
+func (r *automovelRepository) FindByID(id uint) (*model.Automovel, error) {
+	var automovel model.Automovel
+	err := r.db.First(&automovel, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &automovel, nil
+}
+
+func (r *automovelRepository) Update(automovel *model.Automovel) error {
+	return r.db.Save(automovel).Error
+}
+
+func (r *automovelRepository) Delete(id uint) error {
+	return r.db.Delete(&model.Automovel{}, id).Error
 }

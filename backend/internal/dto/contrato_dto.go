@@ -17,5 +17,12 @@ type ContratoResponse struct {
 	AgenteID        uint      `json:"agente_id"`
 	Tipo            string    `json:"tipo"`
 	TipoPropriedade string    `json:"tipo_propriedade"`
+	Status          string    `json:"status"`
+	ValorAutomovel  float64   `json:"valor_automovel"`
+	ValorAluguel    float64   `json:"valor_aluguel"`
 	DataAssinatura  time.Time `json:"data_assinatura"`
+}
+
+type AssinarContratoRequest struct {
+	Assinado bool `json:"assinado" binding:"required"`
 }

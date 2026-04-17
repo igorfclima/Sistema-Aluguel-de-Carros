@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({
+    subsets: ["latin"],
+    variable: "--font-outfit",
+});
 
 export const metadata: Metadata = {
     title: "Sistema de Aluguel de Carros",
@@ -17,8 +20,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="pt-BR" suppressHydrationWarning>
-            <body className={inter.className}>
+        <html lang="pt-BR" suppressHydrationWarning className={outfit.variable}>
+            <body className={outfit.className}>
                 <AuthProvider>
                     {children}
                     <Toaster />

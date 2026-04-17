@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/igorfclima/Sistema-Aluguel-de-Carros/backend/internal/dto"
@@ -41,4 +42,44 @@ func (h *AutomovelHandler) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "automovel registered successfully"})
+}
+
+func (h *AutomovelHandler) Update(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid automovel id"})
+		return
+	}
+
+	var req dto.UpdateAutomovelRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request format"})
+		return
+	}
+
+	err = h.automovelService.UpdateAutomovel(uint(id), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update automovel"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "automovel updated successfully"})
+}
+
+func (h *AutomovelHandler) Delete(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid automovel id"})
+		return
+	}
+
+	err = h.automovelService.DeleteAutomovel(uint(id))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete automovel"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "automovel deleted successfully"})
 }

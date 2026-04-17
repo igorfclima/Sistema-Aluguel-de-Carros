@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Navbar from "@/components/Navbar";
 import { pedidoService } from "@/services/pedido.service";
 import { contratoService } from "@/services/contrato.service";
 import { Pedido } from "@/types/pedido.types";
@@ -35,6 +34,9 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TipoContrato, TipoPropriedade } from "@/types/contrato.types";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { useAuth } from "@/context/AuthContext";
+import { getDashboardNavItems } from "@/lib/dashboard-nav";
 
 const statusLabel: Record<string, string> = {
     AGUARDANDO_ANALISE: "Aguardando",
@@ -44,6 +46,7 @@ const statusLabel: Record<string, string> = {
 };
 
 export default function AdminPage() {
+    const { usuario } = useAuth();
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [loading, setLoading] = useState(true);
     const [contratoDialog, setContratoDialog] = useState<Pedido | null>(null);
@@ -89,21 +92,17 @@ export default function AdminPage() {
 
     async function handleGerarContrato() {
         if (!contratoDialog) return;
+        const propriedadeFinal: TipoPropriedade =
+            tipoContrato === "COM_CREDITO" ? "BANCO" : tipoPropriedade;
+
         try {
             await contratoService.criar({
                 pedido_id: contratoDialog.id,
                 automovel_id: contratoDialog.automovel_id,
                 tipo: tipoContrato,
-                tipo_propriedade: tipoPropriedade,
+                tipo_propriedade: propriedadeFinal,
             });
-            setPedidos((prev) =>
-                prev.map((p) =>
-                    p.id === contratoDialog.id
-                        ? { ...p, status: "CONTRATADO" }
-                        : p,
-                ),
-            );
-            toast.success("Contrato gerado com sucesso.");
+            toast.success("Contrato gerado. Agora ele precisa ser assinado.");
             setContratoDialog(null);
         } catch {
             toast.error("Erro ao gerar contrato.");
@@ -112,29 +111,30 @@ export default function AdminPage() {
 
     return (
         <ProtectedRoute tipos={["AGENTE", "BANCO"]}>
-            <div className="min-h-screen bg-background">
-                <Navbar />
-                <main className="max-w-6xl mx-auto px-6 py-10 space-y-6">
-                    <h1 className="text-xl font-semibold">Painel do Agente</h1>
-
-                    {loading ? (
-                        <p className="text-sm text-muted-foreground">
-                            Carregando...
-                        </p>
-                    ) : pedidos.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                            Nenhum pedido encontrado.
-                        </p>
-                    ) : (
+            <DashboardShell
+                greeting="Central de analise"
+                subtitle="Aprove, recuse pedidos e gere contratos com rastreabilidade."
+                navItems={getDashboardNavItems(usuario?.tipo, "/admin")}
+            >
+                {loading ? (
+                    <p className="text-sm text-[#667067]">
+                        Carregando pedidos...
+                    </p>
+                ) : pedidos.length === 0 ? (
+                    <div className="rounded-3xl border border-dashed border-[#cfd8cf] bg-white px-6 py-10 text-center text-[#6b756c]">
+                        Nenhum pedido encontrado.
+                    </div>
+                ) : (
+                    <div className="rounded-3xl border border-[#dce2dc] bg-white p-4 shadow-[0_8px_22px_rgba(32,46,39,0.06)]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>ID</TableHead>
                                     <TableHead>Cliente</TableHead>
-                                    <TableHead>Automóvel</TableHead>
+                                    <TableHead>Automovel</TableHead>
                                     <TableHead>Data</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Ações</TableHead>
+                                    <TableHead>Acoes</TableHead>
                                     <TableHead>Registrar Propriedade</TableHead>
                                     <TableHead>Renda Comprovada</TableHead>
                                 </TableRow>
@@ -155,7 +155,9 @@ export default function AdminPage() {
                                                     pedido.data_solicitacao,
                                                 ),
                                                 "dd/MM/yyyy",
-                                                { locale: ptBR },
+                                                {
+                                                    locale: ptBR,
+                                                },
                                             )}
                                         </TableCell>
                                         <TableCell>
@@ -170,6 +172,7 @@ export default function AdminPage() {
                                                     <>
                                                         <Button
                                                             size="sm"
+                                                            className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
                                                             onClick={() =>
                                                                 handleAprovar(
                                                                     pedido.id,
@@ -181,6 +184,7 @@ export default function AdminPage() {
                                                         <Button
                                                             size="sm"
                                                             variant="destructive"
+                                                            className="rounded-xl"
                                                             onClick={() =>
                                                                 handleCancelar(
                                                                     pedido.id,
@@ -196,6 +200,7 @@ export default function AdminPage() {
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
+                                                        className="rounded-xl"
                                                         onClick={() =>
                                                             setContratoDialog(
                                                                 pedido,
@@ -208,35 +213,13 @@ export default function AdminPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="space-y-2">
-                                                <Select
-                                                    onValueChange={(value) =>
-                                                        setTipoPropriedade(
-                                                            value as TipoPropriedade,
-                                                        )
-                                                    }
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Selecione o proprietário" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="CLIENTE">
-                                                            Cliente (Registro
-                                                            Direto)
-                                                        </SelectItem>
-                                                        <SelectItem value="EMPRESA">
-                                                            Empresa de Aluguel
-                                                        </SelectItem>
-                                                        <SelectItem value="BANCO">
-                                                            Banco
-                                                            (Leasing/Crédito)
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
+                                            <span className="text-sm text-[#69756b]">
+                                                Definido na geracao do contrato
+                                            </span>
                                         </TableCell>
                                         <TableCell>
-                                            {pedido.soma_renda ? (
+                                            {pedido.soma_renda !== undefined &&
+                                            pedido.soma_renda !== null ? (
                                                 <div className="flex flex-col">
                                                     <span className="font-semibold text-green-700">
                                                         {new Intl.NumberFormat(
@@ -250,12 +233,12 @@ export default function AdminPage() {
                                                         )}
                                                     </span>
                                                     <span className="text-[10px] uppercase text-gray-500">
-                                                        Renda Comprovada
+                                                        Renda comprovada
                                                     </span>
                                                 </div>
                                             ) : (
                                                 <span className="text-gray-400">
-                                                    Não informado
+                                                    Nao informado
                                                 </span>
                                             )}
                                         </TableCell>
@@ -263,17 +246,17 @@ export default function AdminPage() {
                                 ))}
                             </TableBody>
                         </Table>
-                    )}
-                </main>
+                    </div>
+                )}
 
                 <Dialog
                     open={!!contratoDialog}
                     onOpenChange={() => setContratoDialog(null)}
                 >
-                    <DialogContent>
+                    <DialogContent className="rounded-3xl border-[#dce2dc]">
                         <DialogHeader>
                             <DialogTitle>
-                                Gerar Contrato — Pedido #{contratoDialog?.id}
+                                Gerar contrato - Pedido #{contratoDialog?.id}
                             </DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-2">
@@ -281,11 +264,16 @@ export default function AdminPage() {
                                 <Label>Tipo de contrato</Label>
                                 <Select
                                     value={tipoContrato}
-                                    onValueChange={(v) =>
-                                        setTipoContrato(v as TipoContrato)
-                                    }
+                                    onValueChange={(v) => {
+                                        const tipo = v as TipoContrato;
+                                        setTipoContrato(tipo);
+
+                                        if (tipo === "COM_CREDITO") {
+                                            setTipoPropriedade("BANCO");
+                                        }
+                                    }}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="rounded-xl border-[#d7ddd7]">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -293,7 +281,7 @@ export default function AdminPage() {
                                             Simples
                                         </SelectItem>
                                         <SelectItem value="COM_CREDITO">
-                                            Com crédito
+                                            Com credito
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -305,8 +293,9 @@ export default function AdminPage() {
                                     onValueChange={(v) =>
                                         setTipoPropriedade(v as TipoPropriedade)
                                     }
+                                    disabled={tipoContrato === "COM_CREDITO"}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="rounded-xl border-[#d7ddd7]">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -326,17 +315,21 @@ export default function AdminPage() {
                         <DialogFooter>
                             <Button
                                 variant="outline"
+                                className="rounded-xl"
                                 onClick={() => setContratoDialog(null)}
                             >
                                 Cancelar
                             </Button>
-                            <Button onClick={handleGerarContrato}>
+                            <Button
+                                className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
+                                onClick={handleGerarContrato}
+                            >
                                 Confirmar contrato
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </DashboardShell>
         </ProtectedRoute>
     );
 }

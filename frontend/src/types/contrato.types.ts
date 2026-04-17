@@ -1,5 +1,9 @@
 export type TipoContrato = "SIMPLES" | "COM_CREDITO";
 export type TipoPropriedade = "CLIENTE" | "EMPRESA" | "BANCO";
+export type StatusContrato =
+    | "PENDENTE_ASSINATURA"
+    | "AGUARDANDO_APROVACAO_BANCO"
+    | "ATIVO";
 
 export interface Contrato {
     id: number;
@@ -9,6 +13,9 @@ export interface Contrato {
     agente_id: number;
     tipo: TipoContrato;
     tipo_propriedade: TipoPropriedade;
+    status: StatusContrato;
+    valor_automovel: number;
+    valor_aluguel: number;
     data_assinatura: string;
 }
 
@@ -26,6 +33,7 @@ export interface Automovel {
     marca: string;
     modelo: string;
     placa: string;
+    valor: number;
 }
 
 export interface CreateAutomovelRequest {
@@ -34,6 +42,7 @@ export interface CreateAutomovelRequest {
     modelo: string;
     ano: number;
     placa: string;
+    valor: number;
 }
 
 export interface CreateCreditoRequest {

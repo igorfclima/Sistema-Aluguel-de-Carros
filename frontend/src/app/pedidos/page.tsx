@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Navbar from "@/components/Navbar";
 import { pedidoService } from "@/services/pedido.service";
-// Garanta que o tipo Pedido inclua soma_renda, marca e modelo
 import { Pedido } from "@/types/pedido.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,8 +18,10 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useRouter } from "next/navigation"; // Alterado para navigation
 import { ModalEditarPedido } from "@/components/ModalEditarPedido";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { getDashboardNavItems } from "@/lib/dashboard-nav";
+import { useAuth } from "@/context/AuthContext";
 
 const statusLabel: Record<string, string> = {
     AGUARDANDO_ANALISE: "Aguardando análise",
@@ -41,9 +41,9 @@ const statusVariant: Record<
 };
 
 export default function PedidosPage() {
+    const { usuario } = useAuth();
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
     const [pedidoParaEditar, setPedidoParaEditar] = useState<Pedido | null>(
         null,
     );
@@ -81,36 +81,42 @@ export default function PedidosPage() {
 
     return (
         <ProtectedRoute tipos={["CLIENTE"]}>
-            <div className="min-h-screen bg-background">
-                <Navbar />
-                <main className="max-w-5xl mx-auto px-6 py-10 space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h1 className="text-xl font-semibold">Meus Pedidos</h1>
-                        <Link href="/pedidos/novo">
-                            <Button size="sm">Novo pedido</Button>
-                        </Link>
-                    </div>
+            <DashboardShell
+                greeting={`Pedidos de ${usuario?.nome || "Cliente"}`}
+                subtitle="Acompanhe status, renda informada e ajuste pedidos em analise."
+                navItems={getDashboardNavItems(usuario?.tipo, "/pedidos")}
+            >
+                <div className="flex items-center justify-between">
+                    <h2 className="text-4xl font-semibold tracking-tight text-[#263029]">
+                        Minha fila de pedidos
+                    </h2>
+                    <Link href="/pedidos/novo">
+                        <Button className="rounded-2xl bg-[#4f9f68] px-5 text-white hover:bg-[#43895a]">
+                            Novo pedido
+                        </Button>
+                    </Link>
+                </div>
 
-                    {loading ? (
-                        <p className="text-sm text-muted-foreground">
-                            Carregando...
-                        </p>
-                    ) : (pedidos?.length || 0) === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                            Nenhum pedido encontrado.
-                        </p>
-                    ) : (
+                {loading ? (
+                    <p className="text-sm text-[#667067]">
+                        Carregando pedidos...
+                    </p>
+                ) : (pedidos?.length || 0) === 0 ? (
+                    <div className="rounded-3xl border border-dashed border-[#cfd8cf] bg-white px-6 py-10 text-center text-[#6b756c]">
+                        Nenhum pedido encontrado.
+                    </div>
+                ) : (
+                    <div className="rounded-3xl border border-[#dce2dc] bg-white p-4 shadow-[0_8px_22px_rgba(32,46,39,0.06)]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>ID</TableHead>
-                                    <TableHead>Veículo</TableHead>
+                                    <TableHead>Veiculo</TableHead>
                                     <TableHead>Data</TableHead>
-                                    {/* Nova coluna opcional para o cliente ver a renda que cadastrou */}
                                     <TableHead>Renda Inf.</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="text-right">
-                                        Ações
+                                        Acoes
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -120,20 +126,19 @@ export default function PedidosPage() {
                                         <TableCell className="font-medium">
                                             #{pedido.id}
                                         </TableCell>
-                                        <TableCell>
-                                            {`Carro #${pedido.automovel_id}`}
-                                        </TableCell>
+                                        <TableCell>{`Carro #${pedido.automovel_id}`}</TableCell>
                                         <TableCell>
                                             {format(
                                                 new Date(
                                                     pedido.data_solicitacao,
                                                 ),
                                                 "dd/MM/yyyy",
-                                                { locale: ptBR },
+                                                {
+                                                    locale: ptBR,
+                                                },
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {/* Mostra a soma da renda formatada */}
                                             {pedido.soma_renda
                                                 ? new Intl.NumberFormat(
                                                       "pt-BR",
@@ -156,10 +161,11 @@ export default function PedidosPage() {
                                         <TableCell className="text-right">
                                             {pedido.status ===
                                                 "AGUARDANDO_ANALISE" && (
-                                                <div className="flex gap-2 justify-end">
+                                                <div className="flex justify-end gap-2">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
+                                                        className="rounded-xl"
                                                         onClick={() =>
                                                             handleEditar(pedido)
                                                         }
@@ -170,6 +176,7 @@ export default function PedidosPage() {
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
+                                                        className="rounded-xl"
                                                         onClick={() =>
                                                             handleCancelar(
                                                                 pedido.id,
@@ -185,15 +192,14 @@ export default function PedidosPage() {
                                 ))}
                             </TableBody>
                         </Table>
-                    )}
-                </main>
-            </div>
+                    </div>
+                )}
+            </DashboardShell>
             <ModalEditarPedido
                 pedido={pedidoParaEditar}
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
                 onSuccess={() => {
-                    // Função para recarregar os pedidos após editar
                     pedidoService.listar().then(setPedidos);
                 }}
             />

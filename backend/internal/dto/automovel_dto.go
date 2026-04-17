@@ -1,9 +1,19 @@
 package dto
 
 type CreateAutomovelRequest struct {
-	Matricula string `json:"matricula" binding:"required"`
-	Marca     string `json:"marca" binding:"required"`
-	Modelo    string `json:"modelo" binding:"required"`
-	Ano       int    `json:"ano" binding:"required,gt=1900"`
-	Placa     string `json:"placa" binding:"required"`
+	Matricula string  `json:"matricula" binding:"required"`
+	Marca     string  `json:"marca" binding:"required"`
+	Modelo    string  `json:"modelo" binding:"required"`
+	Ano       int     `json:"ano" binding:"required,gt=1900"`
+	Placa     string  `json:"placa" binding:"required"`
+	Valor     float64 `json:"valor" binding:"required,gt=0"`
+}
+
+type UpdateAutomovelRequest struct {
+	Matricula string  `json:"matricula" binding:"required"`
+	Marca     string  `json:"marca" binding:"required"`
+	Modelo    string  `json:"modelo" binding:"required"`
+	Ano       int     `json:"ano" binding:"required,gt=1900"`
+	Placa     string  `json:"placa" binding:"required"`
+	Valor     float64 `json:"valor" binding:"required,gt=0"`
 }

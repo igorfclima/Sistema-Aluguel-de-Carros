@@ -81,6 +81,23 @@ func (s *usuarioService) CreateUsuario(req *dto.CreateUsuarioRequest) error {
 			return errors.New("failed to create client profile")
 		}
 
+		rendimentos := []float64{req.Rendimento1, req.Rendimento2, req.Rendimento3}
+		for _, valor := range rendimentos {
+			if valor <= 0 {
+				continue
+			}
+
+			rendimento := &model.Rendimento{
+				ClienteID: cliente.ID,
+				Valor:     valor,
+				Periodo:   "MENSAL",
+			}
+
+			if err := s.clienteRepo.CreateRendimento(rendimento); err != nil {
+				return errors.New("failed to create client income data")
+			}
+		}
+
 	case "AGENTE":
 		if req.NomeInstituicao == "" {
 			return errors.New("nome_instituicao is required for agente profile")

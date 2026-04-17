@@ -13,6 +13,9 @@ type PedidoResponse struct {
     AutomovelID     uint            `json:"automovel_id"`
     Marca           string          `json:"marca,omitempty"`
     Modelo          string          `json:"modelo,omitempty"`
+    Placa           string          `json:"placa,omitempty"`
+    ValorAutomovel  float64         `json:"valor_automovel"`
+    ValorAluguel    float64         `json:"valor_aluguel"`
     ClienteID       uint            `json:"cliente_id"`
     NomeCliente     string          `json:"nome_cliente,omitempty"`
     CPF             string          `json:"cpf,omitempty"`

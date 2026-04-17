@@ -12,7 +12,10 @@ export interface Pedido {
     data_solicitacao: string;
 
     soma_renda?: number;
-    rendimientos?: { empregador: string; valor: number }[];
+    rendimentos?: { empregador: string; valor: number }[];
+    valor_automovel?: number;
+    valor_aluguel?: number;
+    placa?: string;
     nome_cliente?: string;
     cpf?: string;
     rg?: string;

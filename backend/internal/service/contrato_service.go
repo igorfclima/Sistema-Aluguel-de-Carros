@@ -14,17 +14,37 @@ type ContratoService interface {
 	CreateContrato(req *dto.CreateContratoRequest, usuarioID uint) (*model.Contrato, error)
 	ListAllContratos() ([]dto.ContratoResponse, error)
 	ExecutarContrato(contrato *model.Contrato) error
+	AssinarContrato(contratoID uint, usuarioID uint) (*model.Contrato, error)
+	AprovarCreditoContrato(contratoID uint, req *dto.CreateCreditoRequest, usuarioID uint) (*model.Contrato, error)
 }
 
 type contratoService struct {
 	contratoRepo repository.ContratoRepository
 	pedidoRepo   repository.PedidoRepository
 	agenteRepo   repository.AgenteRepository
+	bancoRepo    repository.BancoRepository
+	creditoRepo  repository.ContratoCreditoRepository
 	db           *gorm.DB
 }
 
-func NewContratoService(cr repository.ContratoRepository, pr repository.PedidoRepository, ar repository.AgenteRepository, db *gorm.DB) ContratoService {
-	return &contratoService{contratoRepo: cr, pedidoRepo: pr, agenteRepo: ar, db: db}
+const aluguelPercentualContrato = 0.03
+
+func NewContratoService(
+	cr repository.ContratoRepository,
+	pr repository.PedidoRepository,
+	ar repository.AgenteRepository,
+	br repository.BancoRepository,
+	cred repository.ContratoCreditoRepository,
+	db *gorm.DB,
+) ContratoService {
+	return &contratoService{
+		contratoRepo: cr,
+		pedidoRepo:   pr,
+		agenteRepo:   ar,
+		bancoRepo:    br,
+		creditoRepo:  cred,
+		db:           db,
+	}
 }
 
 func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuarioID uint) (*model.Contrato, error) {
@@ -45,16 +65,16 @@ func (s *contratoService) CreateContrato(req *dto.CreateContratoRequest, usuario
 		AgenteID:        agente.ID,
 		Tipo:            model.TipoContrato(req.Tipo),
 		TipoPropriedade: model.TipoPropriedade(req.TipoPropriedade),
-		DataAssinatura:  time.Now(),
+		Status:          model.StatusContratoPendenteAssinatura,
+	}
+
+	if contrato.Tipo == model.TipoComCredito {
+		contrato.TipoPropriedade = model.PropriedadeBanco
 	}
 
 	if err := s.contratoRepo.Create(contrato); err != nil {
 		return nil, err
 	}
-
-	if err := s.ExecutarContrato(contrato); err != nil {
-        return nil, errors.New("contrato criado, mas falha ao atualizar propriedade do veículo")
-    }
 
 	return contrato, nil
 }
@@ -75,6 +95,9 @@ func (s *contratoService) ListAllContratos() ([]dto.ContratoResponse, error) {
             AgenteID:        c.AgenteID,
             Tipo:            string(c.Tipo),
             TipoPropriedade: string(c.TipoPropriedade),
+			Status:          string(c.Status),
+			ValorAutomovel:  c.Automovel.Valor,
+			ValorAluguel:    c.Automovel.Valor * aluguelPercentualContrato,
             DataAssinatura:  c.DataAssinatura,
         })
     }
@@ -88,4 +111,119 @@ func (s *contratoService) ExecutarContrato(contrato *model.Contrato) error {
     auto.ProprietarioTipo = string(contrato.TipoPropriedade)
 
     return s.db.Save(&auto).Error
+}
+
+func (s *contratoService) AssinarContrato(contratoID uint, usuarioID uint) (*model.Contrato, error) {
+	agente, agenteErr := s.agenteRepo.FindByUsuarioID(usuarioID)
+	cliente, clienteErr := s.clienteRepoSafe(usuarioID)
+	if (agenteErr != nil || agente == nil) && (clienteErr != nil || !cliente) {
+		return nil, errors.New("apenas agente ou cliente podem assinar contrato")
+	}
+
+	contrato, err := s.contratoRepo.FindByID(contratoID)
+	if err != nil {
+		return nil, errors.New("contrato nao encontrado")
+	}
+
+	if contrato.Status != model.StatusContratoPendenteAssinatura {
+		return nil, errors.New("contrato nao esta pendente de assinatura")
+	}
+
+	contrato.DataAssinatura = time.Now()
+	if contrato.Tipo == model.TipoComCredito {
+		contrato.Status = model.StatusContratoAguardandoBanco
+		contrato.TipoPropriedade = model.PropriedadeBanco
+		if err := s.contratoRepo.Update(contrato); err != nil {
+			return nil, err
+		}
+		return contrato, nil
+	}
+
+	contrato.Status = model.StatusContratoAtivo
+	if err := s.contratoRepo.Update(contrato); err != nil {
+		return nil, err
+	}
+
+	if err := s.ExecutarContrato(contrato); err != nil {
+		return nil, errors.New("contrato assinado, mas falha ao atualizar propriedade")
+	}
+
+	if err := s.marcarPedidoComoContratado(contrato.PedidoID); err != nil {
+		return nil, err
+	}
+
+	return contrato, nil
+}
+
+func (s *contratoService) AprovarCreditoContrato(contratoID uint, req *dto.CreateCreditoRequest, usuarioID uint) (*model.Contrato, error) {
+	banco, err := s.bancoRepo.FindByUsuarioID(usuarioID)
+	if err != nil || banco == nil {
+		return nil, errors.New("apenas banco pode aprovar credito")
+	}
+
+	contrato, err := s.contratoRepo.FindByID(contratoID)
+	if err != nil {
+		return nil, errors.New("contrato nao encontrado")
+	}
+
+	if contrato.Tipo != model.TipoComCredito {
+		return nil, errors.New("este contrato nao possui credito")
+	}
+
+	if contrato.Status != model.StatusContratoAguardandoBanco {
+		return nil, errors.New("contrato ainda nao esta aguardando aprovacao bancaria")
+	}
+
+	credito := &model.ContratoCredito{
+		ContratoID:   contrato.ID,
+		BancoID:      banco.ID,
+		ValorCredito: req.ValorCredito,
+		TaxaJuros:    req.TaxaJuros,
+	}
+	if err := s.creditoRepo.Create(credito); err != nil {
+		return nil, err
+	}
+
+	contrato.TipoPropriedade = model.PropriedadeBanco
+	contrato.Status = model.StatusContratoAtivo
+	if err := s.contratoRepo.Update(contrato); err != nil {
+		return nil, err
+	}
+
+	if err := s.ExecutarContrato(contrato); err != nil {
+		return nil, errors.New("credito aprovado, mas falha ao atualizar propriedade")
+	}
+
+	if err := s.marcarPedidoComoContratado(contrato.PedidoID); err != nil {
+		return nil, err
+	}
+
+	return contrato, nil
+}
+
+func (s *contratoService) marcarPedidoComoContratado(pedidoID uint) error {
+	pedido, err := s.pedidoRepo.FindByID(pedidoID)
+	if err != nil {
+		return errors.New("falha ao atualizar status do pedido")
+	}
+
+	pedido.Status = model.StatusContratado
+	if err := s.pedidoRepo.Update(pedido); err != nil {
+		return errors.New("falha ao salvar status do pedido")
+	}
+
+	return nil
+}
+
+func (s *contratoService) clienteRepoSafe(usuarioID uint) (bool, error) {
+	var cliente model.Cliente
+	err := s.db.Where("usuario_id = ?", usuarioID).First(&cliente).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }

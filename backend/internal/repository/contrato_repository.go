@@ -9,6 +9,7 @@ type ContratoRepository interface {
 	Create(contrato *model.Contrato) error
 	FindByID(id uint) (*model.Contrato, error)
 	FindAll() ([]model.Contrato, error)
+    Update(contrato *model.Contrato) error
 }
 
 type contratoRepository struct {
@@ -25,7 +26,7 @@ func (r *contratoRepository) Create(contrato *model.Contrato) error {
 
 func (r *contratoRepository) FindByID(id uint) (*model.Contrato, error) {
     var contrato model.Contrato
-    result := r.db.First(&contrato, id)
+    result := r.db.Preload("Automovel").First(&contrato, id)
     if result.Error != nil {
         return nil, result.Error
     }
@@ -34,6 +35,10 @@ func (r *contratoRepository) FindByID(id uint) (*model.Contrato, error) {
 
 func (r *contratoRepository) FindAll() ([]model.Contrato, error) {
     var contratos []model.Contrato
-    err := r.db.Find(&contratos).Error
+    err := r.db.Preload("Automovel").Find(&contratos).Error
     return contratos, err
+}
+
+func (r *contratoRepository) Update(contrato *model.Contrato) error {
+	return r.db.Save(contrato).Error
 }

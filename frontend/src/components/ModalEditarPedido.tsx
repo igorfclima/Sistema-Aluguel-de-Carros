@@ -20,6 +20,7 @@ import { pedidoService } from "@/services/pedido.service";
 import api from "@/services/api";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Pedido } from "@/types/pedido.types";
 
 interface Automovel {
     id: number;
@@ -27,12 +28,19 @@ interface Automovel {
     modelo: string;
 }
 
+interface ModalEditarPedidoProps {
+    pedido: Pedido | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSuccess: () => void;
+}
+
 export function ModalEditarPedido({
     pedido,
     open,
     onOpenChange,
     onSuccess,
-}: any) {
+}: ModalEditarPedidoProps) {
     const [veiculos, setVeiculos] = useState<Automovel[]>([]);
     const [novoVeiculoId, setNovoVeiculoId] = useState("");
     const [loading, setLoading] = useState(false);
@@ -47,6 +55,7 @@ export function ModalEditarPedido({
     }, [open]);
 
     const handleSalvar = async () => {
+        if (!pedido) return;
         if (!novoVeiculoId) return toast.error("Selecione um novo veículo");
         setLoading(true);
         try {
@@ -56,7 +65,7 @@ export function ModalEditarPedido({
             toast.success("Pedido modificado com sucesso!");
             onSuccess();
             onOpenChange(false);
-        } catch (err) {
+        } catch {
             toast.error(
                 "Erro ao modificar: verifique se o pedido ainda está em análise.",
             );

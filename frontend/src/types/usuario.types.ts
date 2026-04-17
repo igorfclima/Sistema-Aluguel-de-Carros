@@ -19,6 +19,12 @@ export interface CreateUsuarioRequest {
     tipo_agente?: string;
     nome_instituicao?: string;
     codigo_bancario?: string;
+    empregador1?: string;
+    rendimento1?: number;
+    empregador2?: string;
+    rendimento2?: number;
+    empregador3?: string;
+    rendimento3?: number;
 }
 
 export interface LoginRequest {

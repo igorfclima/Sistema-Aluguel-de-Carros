@@ -9,6 +9,8 @@ import (
 type AutomovelService interface {
 	CreateAutomovel(req *dto.CreateAutomovelRequest) error
 	ListAll() ([]model.Automovel, error)
+	UpdateAutomovel(id uint, req *dto.UpdateAutomovelRequest) error
+	DeleteAutomovel(id uint) error
 }
 
 type automovelService struct {
@@ -26,10 +28,36 @@ func (s *automovelService) CreateAutomovel(req *dto.CreateAutomovelRequest) erro
         Modelo:    req.Modelo,
         Ano:       req.Ano,
         Placa:     req.Placa,
+		Valor:     req.Valor,
     }
     return s.automovelRepo.Create(automovel)
 }
 
 func (s *automovelService) ListAll() ([]model.Automovel, error) {
 	return s.automovelRepo.FindAll()
+}
+
+func (s *automovelService) UpdateAutomovel(id uint, req *dto.UpdateAutomovelRequest) error {
+	automovel, err := s.automovelRepo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	automovel.Matricula = req.Matricula
+	automovel.Marca = req.Marca
+	automovel.Modelo = req.Modelo
+	automovel.Ano = req.Ano
+	automovel.Placa = req.Placa
+	automovel.Valor = req.Valor
+
+	return s.automovelRepo.Update(automovel)
+}
+
+func (s *automovelService) DeleteAutomovel(id uint) error {
+	_, err := s.automovelRepo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	return s.automovelRepo.Delete(id)
 }

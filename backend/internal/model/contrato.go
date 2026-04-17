@@ -9,6 +9,14 @@ const (
 	TipoComCredito TipoContrato = "COM_CREDITO"
 )
 
+type StatusContrato string
+
+const (
+	StatusContratoPendenteAssinatura     StatusContrato = "PENDENTE_ASSINATURA"
+	StatusContratoAguardandoBanco        StatusContrato = "AGUARDANDO_APROVACAO_BANCO"
+	StatusContratoAtivo                  StatusContrato = "ATIVO"
+)
+
 type TipoPropriedade string
 
 const (
@@ -23,7 +31,8 @@ type Contrato struct {
 	Pedido          PedidoAluguel   `gorm:"foreignKey:PedidoID"`
 	Tipo            TipoContrato    `gorm:"type:varchar(20);not null"`
 	TipoPropriedade TipoPropriedade `gorm:"type:varchar(20);not null"`
-	DataAssinatura  time.Time       `gorm:"autoCreateTime"`
+	Status          StatusContrato  `gorm:"type:varchar(40);not null;default:'PENDENTE_ASSINATURA'"`
+	DataAssinatura  time.Time
 
 	AutomovelID uint      `gorm:"not null"`
 	Automovel   Automovel `gorm:"foreignKey:AutomovelID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`

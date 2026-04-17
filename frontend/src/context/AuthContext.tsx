@@ -1,12 +1,6 @@
 "use client";
 
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-    ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { Usuario } from "@/types/usuario.types";
 
 interface AuthContextType {
@@ -20,21 +14,51 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
+function getInitialAuthState() {
+    if (typeof window === "undefined") {
+        return {
+            usuario: null as Usuario | null,
+            token: null as string | null,
+            isLoading: true,
+        };
+    }
+
+    const storedToken = localStorage.getItem("token");
+    const storedUsuario = localStorage.getItem("usuario");
+
+    if (!storedToken || !storedUsuario) {
+        return {
+            usuario: null as Usuario | null,
+            token: null as string | null,
+            isLoading: false,
+        };
+    }
+
+    try {
+        return {
+            usuario: JSON.parse(storedUsuario) as Usuario,
+            token: storedToken,
+            isLoading: false,
+        };
+    } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("usuario");
+
+        return {
+            usuario: null as Usuario | null,
+            token: null as string | null,
+            isLoading: false,
+        };
+    }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [usuario, setUsuario] = useState<Usuario | null>(null);
-    const [token, setToken] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const storedToken = localStorage.getItem("token");
-        const storedUsuario = localStorage.getItem("usuario");
-
-        if (storedToken && storedUsuario) {
-            setToken(storedToken);
-            setUsuario(JSON.parse(storedUsuario));
-        }
-        setIsLoading(false);
-    }, []);
+    const [initialState] = useState(getInitialAuthState);
+    const [usuario, setUsuario] = useState<Usuario | null>(
+        initialState.usuario,
+    );
+    const [token, setToken] = useState<string | null>(initialState.token);
+    const isLoading = initialState.isLoading;
 
     function login(token: string, usuario: Usuario) {
         localStorage.setItem("token", token);

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { TipoUsuario, Usuario } from "@/types/usuario.types";
+import { CarFront } from "lucide-react";
 
 interface JwtPayload {
     sub: number;
@@ -66,7 +67,7 @@ export default function LoginPage() {
             <section className="relative hidden overflow-hidden border-r border-[#dfe4de] bg-[radial-gradient(circle_at_10%_20%,#f7fbf8_0%,#e7eee9_38%,#d9e3da_100%)] lg:flex lg:items-center lg:justify-center">
                 <div className="fade-up w-full max-w-125 px-10">
                     <div className="mb-7 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
+                        <CarFront className="h-10 w-10 text-[#4f9f68] drop-shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-5xl font-semibold tracking-tight">
                             LocaMais
                         </p>
@@ -138,6 +139,13 @@ export default function LoginPage() {
                         >
                             {loading ? "Entrando..." : "Entrar"}
                         </Button>
+
+                        <Link
+                            href="/"
+                            className="inline-flex h-12 w-full items-center justify-center rounded-2xl border border-[#d7ddd7] bg-white text-base font-semibold text-[#3e4a41] transition hover:bg-[#f2f5f2]"
+                        >
+                            Voltar para a pagina inicial
+                        </Link>
                     </form>
 
                     <p className="mt-6 text-center text-sm text-[#6a746c]">

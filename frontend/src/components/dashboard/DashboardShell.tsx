@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { CarFront, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export interface DashboardNavItem {
@@ -30,7 +30,7 @@ export function DashboardShell({
             <div className="flex w-full gap-0">
                 <aside className="w-full border-b border-[#dfe4de] bg-[#f3f5f2] px-5 py-5 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-73 lg:flex-col lg:rounded-none lg:border-b-0 lg:border-r lg:px-6 lg:py-8 lg:shadow-[0_10px_24px_rgba(39,56,48,0.06)]">
                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
+                        <CarFront className="h-8 w-8 text-[#4f9f68] drop-shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <div>
                             <p className="text-2xl font-semibold tracking-tight">
                                 LocaMais

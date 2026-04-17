@@ -16,6 +16,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { CarFront } from "lucide-react";
 
 type CadastroForm = {
     nome: string;
@@ -132,7 +133,7 @@ export default function CadastroPage() {
             <section className="relative hidden overflow-hidden border-r border-[#dfe4de] bg-[radial-gradient(circle_at_20%_20%,#f7fbf8_0%,#e7eee9_38%,#d9e3da_100%)] lg:flex lg:items-center lg:justify-center">
                 <div className="fade-up w-full max-w-130 px-10">
                     <div className="mb-7 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
+                        <CarFront className="h-10 w-10 text-[#4f9f68] drop-shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-5xl font-semibold tracking-tight">
                             LocaMais
                         </p>

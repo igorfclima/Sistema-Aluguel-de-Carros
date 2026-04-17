@@ -40,7 +40,7 @@ export default function Home() {
             <header className="sticky top-0 z-20 border-b border-[#dce2db] bg-[#f7f8f6]/95 backdrop-blur">
                 <div className="mx-auto flex h-16 w-full max-w-350 items-center justify-between px-4 sm:px-6">
                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-[#4f9f68] shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
+                        <CarFront className="h-8 w-8 text-[#4f9f68] drop-shadow-[0_8px_18px_rgba(79,159,104,0.35)]" />
                         <p className="text-3xl font-semibold tracking-tight">
                             LocaMais
                         </p>
@@ -228,7 +228,7 @@ export default function Home() {
             <footer className="py-8">
                 <div className="mx-auto flex w-full max-w-350 flex-col items-center justify-between gap-3 px-4 text-[#68736a] sm:flex-row sm:px-6">
                     <div className="flex items-center gap-3">
-                        <div className="h-7 w-7 rounded-full bg-[#4f9f68]" />
+                        <CarFront className="h-7 w-7 text-[#4f9f68]" />
                         <p className="text-3xl font-semibold tracking-tight text-[#2a332d]">
                             LocaMais
                         </p>

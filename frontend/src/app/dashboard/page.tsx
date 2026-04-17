@@ -79,6 +79,31 @@ export default function DashboardPage() {
         }
     }
 
+    async function handleAprovarCreditoContrato(contrato: Contrato) {
+        try {
+            await contratoService.aprovarCredito(contrato.id, {
+                valor_credito: contrato.valor_aluguel || 0,
+                taxa_juros: 1.9,
+            });
+
+            const [pedidosRes, contratosRes] = await Promise.allSettled([
+                pedidoService.listar(),
+                contratoService.listar(),
+            ]);
+
+            if (pedidosRes.status === "fulfilled") {
+                setPedidos(pedidosRes.value || []);
+            }
+            if (contratosRes.status === "fulfilled") {
+                setContratos(contratosRes.value || []);
+            }
+
+            toast.success("Credito aprovado com sucesso.");
+        } catch {
+            toast.error("Nao foi possivel aprovar o credito.");
+        }
+    }
+
     useEffect(() => {
         async function loadDashboardData() {
             setLoading(true);
@@ -278,6 +303,7 @@ export default function DashboardPage() {
                 title: `Gerar contrato do pedido #${pedido.id}`,
                 subtitle: `Status: ${statusLabel[pedido.status]} - Cliente ${pedido.nome_cliente || `#${pedido.cliente_id}`}`,
                 cta: "Gerar contrato",
+                ctaHref: "/admin",
             })),
         ];
 
@@ -361,7 +387,8 @@ export default function DashboardPage() {
 
                     <ActionSidebar
                         heading="Acoes Pendentes"
-                        footerButtonLabel="Abrir fila de analise"
+                        footerButtonLabel="Ir para pedidos"
+                        footerButtonHref="/admin"
                         items={acoesPendentes}
                     />
                 </div>
@@ -391,6 +418,7 @@ export default function DashboardPage() {
                 title: `Aprovar credito do contrato #${contrato.id}`,
                 subtitle: `Status: ${contrato.status} - Cliente #${contrato.cliente_id}`,
                 cta: "Aprovar agora",
+                ctaHref: "/contratos",
             })),
         ];
 
@@ -449,10 +477,10 @@ export default function DashboardPage() {
                                         {
                                             label: "Aprovar Credito",
                                             tone: "primary",
-                                        },
-                                        {
-                                            label: "Analise Profunda",
-                                            tone: "ghost",
+                                            onClick: () =>
+                                                handleAprovarCreditoContrato(
+                                                    contrato,
+                                                ),
                                         },
                                     ]}
                                 />
@@ -468,7 +496,8 @@ export default function DashboardPage() {
 
                     <ActionSidebar
                         heading="Acoes de Credito"
-                        footerButtonLabel="Ver fila completa"
+                        footerButtonLabel="Ir para contratos"
+                        footerButtonHref="/contratos"
                         items={acoesCredito}
                     />
                 </div>

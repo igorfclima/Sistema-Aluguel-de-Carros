@@ -87,7 +87,7 @@ func (s *contratoService) ListAllContratos() ([]dto.ContratoResponse, error) {
 
     var response []dto.ContratoResponse
     for _, c := range contratos {
-        response = append(response, dto.ContratoResponse{
+		item := dto.ContratoResponse{
             ID:              c.ID,
             PedidoID:        c.PedidoID,
             AutomovelID:     c.AutomovelID,
@@ -98,8 +98,28 @@ func (s *contratoService) ListAllContratos() ([]dto.ContratoResponse, error) {
 			Status:          string(c.Status),
 			ValorAutomovel:  c.Automovel.Valor,
 			ValorAluguel:    c.Automovel.Valor * aluguelPercentualContrato,
+			AutomovelMarca:  c.Automovel.Marca,
+			AutomovelModelo: c.Automovel.Modelo,
+			AutomovelPlaca:  c.Automovel.Placa,
+			ClienteNome:     c.Cliente.Usuario.Nome,
+			ClienteCPF:      c.Cliente.CPF,
+			ClienteRG:       c.Cliente.RG,
+			ClienteEndereco: c.Cliente.Endereco,
+			ClienteProfissao: c.Cliente.Profissao,
+			AgenteNomeAprovador: c.Agente.Usuario.Nome,
+			AgenteInstituicao:   c.Agente.NomeInstituicao,
             DataAssinatura:  c.DataAssinatura,
-        })
+		}
+
+		if c.ContratoCredito != nil {
+			item.ValorCredito = c.ContratoCredito.ValorCredito
+			item.TaxaJuros = c.ContratoCredito.TaxaJuros
+			item.BancoNomeInstituicao = c.ContratoCredito.Banco.Agente.NomeInstituicao
+			item.BancoCodigoBancario = c.ContratoCredito.Banco.CodigoBancario
+			item.BancoAprovadorNome = c.ContratoCredito.Banco.Agente.Usuario.Nome
+		}
+
+		response = append(response, item)
     }
     return response, nil
 }

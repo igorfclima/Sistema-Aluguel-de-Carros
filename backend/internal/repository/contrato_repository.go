@@ -26,7 +26,12 @@ func (r *contratoRepository) Create(contrato *model.Contrato) error {
 
 func (r *contratoRepository) FindByID(id uint) (*model.Contrato, error) {
     var contrato model.Contrato
-    result := r.db.Preload("Automovel").First(&contrato, id)
+    result := r.db.
+        Preload("Automovel").
+        Preload("Cliente.Usuario").
+        Preload("Agente.Usuario").
+        Preload("ContratoCredito.Banco.Agente.Usuario").
+        First(&contrato, id)
     if result.Error != nil {
         return nil, result.Error
     }
@@ -35,7 +40,12 @@ func (r *contratoRepository) FindByID(id uint) (*model.Contrato, error) {
 
 func (r *contratoRepository) FindAll() ([]model.Contrato, error) {
     var contratos []model.Contrato
-    err := r.db.Preload("Automovel").Find(&contratos).Error
+    err := r.db.
+        Preload("Automovel").
+        Preload("Cliente.Usuario").
+        Preload("Agente.Usuario").
+        Preload("ContratoCredito.Banco.Agente.Usuario").
+        Find(&contratos).Error
     return contratos, err
 }
 

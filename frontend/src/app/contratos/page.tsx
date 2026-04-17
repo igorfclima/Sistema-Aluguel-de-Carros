@@ -19,6 +19,7 @@ import { FileText, Download, CheckCircle2 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getDashboardNavItems } from "@/lib/dashboard-nav";
 import { useAuth } from "@/context/AuthContext";
+import { jsPDF } from "jspdf";
 
 export default function ContratosPage() {
     const { usuario } = useAuth();
@@ -41,8 +42,77 @@ export default function ContratosPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    const handleDownload = (id: number) => {
-        toast.info(`Iniciando download do contrato #${id}...`);
+    const formatCurrency = (value: number) =>
+        new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+        }).format(value || 0);
+
+    const handleDownload = (contrato: Contrato) => {
+        const pdf = new jsPDF({ unit: "mm", format: "a4" });
+        const lines: string[] = [
+            `Contrato #${contrato.id}`,
+            `Pedido origem: #${contrato.pedido_id}`,
+            `Status: ${statusLabel[contrato.status] || contrato.status}`,
+            `Tipo: ${contrato.tipo}`,
+            `Tipo de propriedade: ${contrato.tipo_propriedade}`,
+            "",
+            "Dados do veiculo",
+            `Marca/Modelo: ${contrato.automovel_marca || "Nao informado"} ${contrato.automovel_modelo || ""}`.trim(),
+            `Placa: ${contrato.automovel_placa || "Nao informado"}`,
+            `Valor do aluguel: ${formatCurrency(contrato.valor_aluguel || 0)}`,
+            "",
+            "Dados do cliente",
+            `Nome: ${contrato.cliente_nome || "Nao informado"}`,
+            `CPF: ${contrato.cliente_cpf || "Nao informado"}`,
+            `RG: ${contrato.cliente_rg || "Nao informado"}`,
+            `Endereco: ${contrato.cliente_endereco || "Nao informado"}`,
+            `Profissao: ${contrato.cliente_profissao || "Nao informado"}`,
+            "",
+            "Dados do agente",
+            `Aprovador/Responsavel: ${contrato.agente_nome_aprovador || "Nao informado"}`,
+            `Instituicao: ${contrato.agente_instituicao || "Nao informado"}`,
+            "",
+            "Dados do banco",
+            `Instituicao: ${contrato.banco_nome_instituicao || "Nao informado"}`,
+            `Codigo bancario: ${contrato.banco_codigo_bancario || "Nao informado"}`,
+            `Aprovador do credito: ${contrato.banco_aprovador_nome || "Nao informado"}`,
+            `Valor do credito: ${formatCurrency(contrato.valor_credito || 0)}`,
+            `Taxa de juros: ${
+                contrato.taxa_juros !== undefined
+                    ? `${contrato.taxa_juros}%`
+                    : "Nao informado"
+            }`,
+        ];
+
+        let y = 18;
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.text("Relatorio de Contrato", 14, y);
+        y += 8;
+
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(11);
+
+        lines.forEach((line) => {
+            if (!line) {
+                y += 4;
+                return;
+            }
+
+            const wrapped = pdf.splitTextToSize(line, 180);
+            wrapped.forEach((segment: string) => {
+                if (y > 285) {
+                    pdf.addPage();
+                    y = 18;
+                }
+                pdf.text(segment, 14, y);
+                y += 6;
+            });
+        });
+
+        pdf.save(`contrato-${contrato.id}.pdf`);
+        toast.success(`PDF do contrato #${contrato.id} gerado com sucesso.`);
     };
 
     async function handleAssinar(contratoId: number) {
@@ -207,7 +277,7 @@ export default function ContratosPage() {
                                                     className="rounded-xl"
                                                     onClick={() =>
                                                         handleDownload(
-                                                            contrato.id,
+                                                            contrato,
                                                         )
                                                     }
                                                 >

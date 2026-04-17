@@ -1,19 +1,27 @@
+import Link from "next/link";
+
 export interface SidebarActionItem {
     title: string;
     subtitle?: string;
     cta?: string;
+    ctaHref?: string;
+    onCtaClick?: () => void;
     badge?: number;
 }
 
 interface ActionSidebarProps {
     heading: string;
     footerButtonLabel: string;
+    footerButtonHref?: string;
+    onFooterButtonClick?: () => void;
     items: SidebarActionItem[];
 }
 
 export function ActionSidebar({
     heading,
     footerButtonLabel,
+    footerButtonHref,
+    onFooterButtonClick,
     items,
 }: ActionSidebarProps) {
     return (
@@ -41,14 +49,23 @@ export function ActionSidebar({
                                 {item.subtitle}
                             </p>
                         )}
-                        {item.cta && (
-                            <button
-                                type="button"
-                                className="text-sm font-semibold text-[#2d6c44] underline decoration-[#8fb89d] underline-offset-4"
-                            >
-                                {item.cta}
-                            </button>
-                        )}
+                        {item.cta &&
+                            (item.ctaHref ? (
+                                <Link
+                                    href={item.ctaHref}
+                                    className="text-sm font-semibold text-[#2d6c44] underline decoration-[#8fb89d] underline-offset-4"
+                                >
+                                    {item.cta}
+                                </Link>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={item.onCtaClick}
+                                    className="text-sm font-semibold text-[#2d6c44] underline decoration-[#8fb89d] underline-offset-4"
+                                >
+                                    {item.cta}
+                                </button>
+                            ))}
                         {index < items.length - 1 && (
                             <div className="border-b border-[#e5ebe5]" />
                         )}
@@ -56,12 +73,22 @@ export function ActionSidebar({
                 ))}
             </div>
 
-            <button
-                type="button"
-                className="mt-2 w-full rounded-2xl border border-[#d6ddd6] bg-[#f0f4f0] px-3 py-2 text-sm font-semibold text-[#445046] transition hover:bg-[#e7ede7]"
-            >
-                {footerButtonLabel}
-            </button>
+            {footerButtonHref ? (
+                <Link
+                    href={footerButtonHref}
+                    className="mt-2 block w-full rounded-2xl border border-[#d6ddd6] bg-[#f0f4f0] px-3 py-2 text-center text-sm font-semibold text-[#445046] transition hover:bg-[#e7ede7]"
+                >
+                    {footerButtonLabel}
+                </Link>
+            ) : (
+                <button
+                    type="button"
+                    onClick={onFooterButtonClick}
+                    className="mt-2 w-full rounded-2xl border border-[#d6ddd6] bg-[#f0f4f0] px-3 py-2 text-sm font-semibold text-[#445046] transition hover:bg-[#e7ede7]"
+                >
+                    {footerButtonLabel}
+                </button>
+            )}
         </aside>
     );
 }

@@ -48,6 +48,8 @@ const statusLabel: Record<string, string> = {
 
 export default function AdminPage() {
     const { usuario } = useAuth();
+    const isBanco = usuario?.tipo === "BANCO";
+    const isAgente = usuario?.tipo === "AGENTE";
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [contratos, setContratos] = useState<Contrato[]>([]);
     const [loading, setLoading] = useState(true);
@@ -140,11 +142,40 @@ export default function AdminPage() {
         }
     }
 
+    async function handleAprovarCredito(contrato: Contrato) {
+        try {
+            await contratoService.aprovarCredito(contrato.id, {
+                valor_credito: contrato.valor_aluguel || 0,
+                taxa_juros: 1.9,
+            });
+
+            const [pedidosRes, contratosRes] = await Promise.allSettled([
+                pedidoService.listar(),
+                contratoService.listar(),
+            ]);
+
+            if (pedidosRes.status === "fulfilled") {
+                setPedidos(pedidosRes.value);
+            }
+            if (contratosRes.status === "fulfilled") {
+                setContratos(contratosRes.value);
+            }
+
+            toast.success("Credito aprovado com sucesso.");
+        } catch {
+            toast.error("Erro ao aprovar credito.");
+        }
+    }
+
     return (
         <ProtectedRoute tipos={["AGENTE", "BANCO"]}>
             <DashboardShell
                 greeting="Central de analise"
-                subtitle="Aprove, recuse pedidos e gere contratos com rastreabilidade."
+                subtitle={
+                    isBanco
+                        ? "Analise e aprove o credito de contratos pendentes."
+                        : "Aprove, recuse pedidos e gere contratos com rastreabilidade."
+                }
                 navItems={getDashboardNavItems(usuario?.tipo, "/admin")}
             >
                 {loading ? (
@@ -211,7 +242,8 @@ export default function AdminPage() {
                                             <TableCell>
                                                 <div className="flex gap-2">
                                                     {pedido.status ===
-                                                        "AGUARDANDO_ANALISE" && (
+                                                        "AGUARDANDO_ANALISE" &&
+                                                        isAgente && (
                                                         <>
                                                             <Button
                                                                 size="sm"
@@ -239,7 +271,8 @@ export default function AdminPage() {
                                                         </>
                                                     )}
                                                     {pedido.status ===
-                                                        "APROVADO" && (
+                                                        "APROVADO" &&
+                                                        isAgente && (
                                                         <>
                                                             {!contrato && (
                                                                 <Button
@@ -271,6 +304,25 @@ export default function AdminPage() {
                                                             )}
                                                         </>
                                                     )}
+
+                                                    {isBanco &&
+                                                        contrato &&
+                                                        contrato.tipo ===
+                                                            "COM_CREDITO" &&
+                                                        contrato.status ===
+                                                            "AGUARDANDO_APROVACAO_BANCO" && (
+                                                            <Button
+                                                                size="sm"
+                                                                className="rounded-xl bg-[#4f9f68] text-white hover:bg-[#43895a]"
+                                                                onClick={() =>
+                                                                    handleAprovarCredito(
+                                                                        contrato,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Aprovar credito
+                                                            </Button>
+                                                        )}
                                                 </div>
                                             </TableCell>
                                             <TableCell>
